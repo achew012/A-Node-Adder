@@ -244,6 +244,47 @@ def projectinfo():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response 
 
+@app.route('/existingAnnotations', methods =['POST']) 
+def existing_annotations():
+    try:
+        package = json.loads(request.data.decode())['valueHolder']
+        operation_type = package['type']
+        project_name = package['projectname']
+        data_controller = annotator_controller(project_name)
+        result = []
+
+        if operation_type=="getSource":
+            existing_source_mentions = data_controller.get_source_mentions()
+            if existing_source_mentions!=None:
+                result = json.load(open("{}/source_mentions.json".format(existing_source_mentions.get_local_copy())))
+            else:
+                result = {}
+
+        elif operation_type=="getTarget":
+            existing_target_mentions = data_controller.get_target_mentions()
+            if existing_target_mentions!=None:
+                result = json.load(open("{}/target_mentions.json".format(existing_target_mentions.get_local_copy())))
+            else:
+                result = {} 
+
+        elif operation_type=="getTriple":
+            existing_triples = data_controller.get_triples_annotations()
+            if existing_triples!=None:
+                result = load_jsonl(load_path="{}/triples.jsonl".format(existing_triples.get_local_copy()))
+            else:
+                result = []
+
+        response =  jsonify({'annotations': result})   
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout))
+        response = jsonify({'error' : str(e)})
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response 
+
+
 
 @app.route('/annotateRaw', methods =['POST']) 
 def annotate_raw():
@@ -261,7 +302,7 @@ def annotate_raw():
             dataset_path = data_controller.get_target_raw().get_local_copy()
             dataset = load_jsonl(load_path="{}/dataset.jsonl".format(dataset_path))
         
-        response =  jsonify({'data': dataset, 'annotations': []})   
+        response =  jsonify({'data': dataset})   
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -298,6 +339,29 @@ def annotate_mention():
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response 
+
+@app.route('/annotateTriples', methods =['POST']) 
+def annotate_triples():
+    try:
+        package = json.loads(request.data.decode())['valueHolder']
+        project_name = package['projectname']
+        triples = package['triples']
+        data_controller = annotator_controller(project_name)
+
+        if os.path.exists(data_controller.triples_dataset_path)==False:
+            os.mkdir(data_controller.triples_dataset_path)
+
+        data_controller.set_triples_annotations(triples)
+        response =  jsonify({'triples': triples})   
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout))
+        response = jsonify({'error' : str(e)})
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response 
+
 
 
 #app.run("0.0.0.0", debug=False)

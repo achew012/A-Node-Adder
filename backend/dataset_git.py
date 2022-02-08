@@ -113,6 +113,7 @@ class annotator_controller(dataset_git):
         self.raw_target_path = "./target_raw"
         self.mentions_source_path = "./source_mentions"
         self.mentions_target_path = "./target_mentions"
+        self.triples_dataset_path = "./triples_dataset"
         super(annotator_controller, self).__init__(pull_dataset_project)
 
     def get_source_raw(self)->Dataset:
@@ -172,12 +173,24 @@ class annotator_controller(dataset_git):
         return None
 
     def get_triples_annotations(self)->Dataset:
-        
-        return None
-
-    def set_triples_annotations(self, mentions)->None:
+        return self.get_dataset("triples_dataset")
+    
+    def set_triples_annotations(self, triples)->None:
         triples_dataset = self.get_triples_annotations()
+        if triples_dataset==None:
+            triples_dataset = self.create_empty_dataset_task("triples_dataset", parents=[self.get_target_mentions().id, self.get_source_mentions().id])
+            triples_dataset.finalize()
+        triples_dataset.get_mutable_local_copy(self.triples_dataset_path, overwrite=True)
+        to_jsonl("{}/triples.jsonl".format(self.triples_dataset_path), triples)
 
+        new_triples_dataset = self.create_empty_dataset_task("new_triples_dataset", parents=[triples_dataset.id])
+        new_triples_dataset.sync_folder(self.triples_dataset_path, verbose=True)
+        new_triples_dataset.upload()
+        new_triples_dataset.finalize()
+        
+        self.squash_datasets("triples_dataset", [triples_dataset.id, new_triples_dataset.id])
+        Dataset.delete(dataset_id = new_triples_dataset.id)
+        Dataset.delete(dataset_id = triples_dataset.id)
         return None
 
 

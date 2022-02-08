@@ -27,7 +27,6 @@ export default function Annotate({}) {
   const useStyles = makeStyles({
     source: {
       minHeight: '250px',
-      maxHeight: '500px',
       border: '1px solid black',
       marginRight: '1px',
       marginBottom: '1px',
@@ -36,7 +35,6 @@ export default function Annotate({}) {
     },
     target: {
       minHeight: '250px',
-      maxHeight: '500px',
       border: '1px solid black',
       marginRight: '1px',
       marginBottom: '1px',
@@ -108,8 +106,6 @@ export default function Annotate({}) {
   const location = useLocation();
   const projectName = location.state.projectname;
   const userName = location.state.user;
-  // const projectName = "test"; 
-  // const userName = "tester";   
 
   const annotators = location.state.annotators;
   const definedClasses = location.state.definedClasses;
@@ -118,7 +114,7 @@ export default function Annotate({}) {
   const relationClasses = definedClasses["Relation"]
 
   const selectedTask = useRef("");
-  const dataset = useRef([[]]);
+  // const dataset = useRef([[]]);
   // tracks the current sample index for source and target annotators
   const [srctokenIndex, setSRCTokenIndex] = useState(0)
   const [tgttokenIndex, setTGTTokenIndex] = useState(0)
@@ -136,7 +132,7 @@ export default function Annotate({}) {
   const [tgtMentionsList, setTgtMentionsList] = useState({});
 
   // Get from medium from tokenized document
-  const [tokensList, setTokensList] = useState([['Empty Document'], ['Document Empty']]);
+  const [tokensList, setTokensList] = useState([['Placeholder Document']]);
 
   function handleSrcSelection(e){
     e.preventDefault();
@@ -176,6 +172,25 @@ export default function Annotate({}) {
     }
   }
 
+  function saveTriples() {      
+    console.log("Uploading triples...")
+    // Create an object of formData 
+    
+    const valueHolder = {
+      projectname: projectName,
+      triples: annotatedTriples,
+    };
+    
+    // Request made to the backend api 
+    axios.post('http://'+SERVER_URL+'/annotateTriples', { valueHolder }).then(res => {
+          var result = res.data
+          console.log(result)
+          if (result.hasOwnProperty("error")==false){
+            alert("Upload Successful.")
+          }
+        });
+  };  
+
   function saveMentions(annotatorType, mentionsList) {      
     console.log("Uploading mentions...")
     // Create an object of formData 
@@ -190,8 +205,34 @@ export default function Annotate({}) {
     axios.post('http://'+SERVER_URL+'/annotateMentions', { valueHolder }).then(res => {
           var result = res.data
           console.log(result)
+          if (result.hasOwnProperty("error")==false){
+            alert("Upload Successful.")
+          }
         });
   };  
+
+  function getExistingAnnotations(operationType) {
+    const valueHolder = {
+      type: operationType,
+      projectname: projectName,
+    };
+
+    axios.post('http://' + SERVER_URL + '/existingAnnotations', { valueHolder }).then(res => {
+        var existingAnnotations = res.data["annotations"];
+
+        console.log(res.data)
+
+        switch(operationType){
+          case "getSource":
+            setSrcMentionsList(existingAnnotations);
+          case "getTarget":
+            setTgtMentionsList(existingAnnotations);
+          case "getTriple":
+            setAnnotatedTriples([...existingAnnotations]);       
+          }
+      }
+    );    
+  }
 
   //get source, get target, get relations for initialization
   function getRawData(operationType, modality) {
@@ -203,11 +244,13 @@ export default function Annotate({}) {
 
     if (modality!="Classes"){
       axios.post('http://' + SERVER_URL + '/annotateRaw', { valueHolder }).then(res => {
-          var result = res.data["data"];
-          console.log(result)
+          var tokens_dataset = res.data["data"];
+
           switch(modality){
             case "Text":
-              setTokensList(result);
+              var tempArray = tokensList
+              var newTokenslist = tempArray.concat(tokens_dataset)
+              setTokensList(newTokenslist);
           }
         }
       );
@@ -328,15 +371,23 @@ export default function Annotate({}) {
   }
 
   useEffect(() => {
+    console.log(srcMentionsList);
+    console.log(tgtMentionsList);
+  }, [srcMentionsList, tgtMentionsList]);
+
+  useEffect(() => {
     setSelectedSrc({tokens: [""]})
     setSelectedTgt({tokens: [""]})
     setSelectedRel("default")
-    console.log(annotatedTriples);
   }, [annotatedTriples]);
   
   useEffect(() => {
     getRawData("getSource", annotators["Source"]);
     getRawData("getTarget", annotators["Target"]);
+    // TODO: cant get 1st document annotations to rerender, fix it
+    getExistingAnnotations("getSource") 
+    getExistingAnnotations("getTarget") 
+    getExistingAnnotations("getTriple")
   }, []);
 
   return(
@@ -362,7 +413,7 @@ export default function Annotate({}) {
                 <h5>Annotations</h5>
               </Grid>
               <Grid item xs={4}>
-                <Button className={classes.button}>Save to Datasets</Button> 
+                <Button className={classes.button} onClick={saveTriples}>Save to Datasets</Button> 
               </Grid>               
             </Row>
             {renderAnnotatedTriples()}
