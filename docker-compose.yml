@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        restart: always
+        ports:
+            - "80:80"
+            - "3000:3000"
+        networks:
+            - common
+            
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        command: gunicorn -w 1 -b 0.0.0.0:5000 wsgi:app
+        restart: always
+        ports:
+            - "5000:5000" 
+        networks:
+            - common
+        volumes:
+            - ./backend:/app 
+            - ./config/clearml.conf:/home/root/clearml.conf 
+        env_file:
+            - ./frontend/.env
+
+    s3:
+        restart: always
+        image: minio/minio:latest
+        # container_name: -s3
+        ports:
+            - 9000:9000
+        env_file:
+            - ./frontend/.env
+        command: server /data
+        networks:
+            - common    
+        volumes:
+         - ./s3:/data
+            
+                        
+networks: 
+    common:

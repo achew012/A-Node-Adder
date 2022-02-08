@@ -1,0 +1,10 @@
+frontend/node_modules
+frontend/.env
+s3/
+backend/clearml.conf
+backend/source_*
+backend/target_*
+backend/__pycache__
+backend/.ipynb_checkpoints
+config/*
+
