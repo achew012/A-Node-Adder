@@ -13,7 +13,7 @@ import os, sys, shutil, re, json
 import io
 import traceback
 
-from dataset_git import annotator_controller, load_jsonl, to_jsonl
+from dataset_git import Annotator_Controller, load_jsonl, to_jsonl
 
 access_key = os.environ['AWS_ACCESS_KEY_ID']
 secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
@@ -154,13 +154,13 @@ def fileupload():
     annotator_type = raw_string[1]
     filename = raw_string[2]
     filetype = filename.split('.')[-1]
-    data_controller = annotator_controller(project_name)
+    data_controller = Annotator_Controller(project_name)
 
     print("Uploading File...")
 
     try:
         if os.path.exists(data_controller.raw_source_path)==False:
-            # shutil.rmtree(annotator_controller.source_raw_path)
+            # shutil.rmtree(Annotator_Controller.source_raw_path)
             os.mkdir(data_controller.raw_source_path)
         if os.path.exists(data_controller.raw_target_path)==False:
             os.mkdir(data_controller.raw_target_path)
@@ -229,7 +229,7 @@ def projectinfo():
         package = json.loads(request.data.decode())        
         operation_type = package['type']
         project_name = package['projectname']
-        data_controller = annotator_controller(project_name)
+        data_controller = Annotator_Controller(project_name)
 
         if operation_type=="Source":        
             response =jsonify({'answer': [data_controller.get_source_raw().id]})
@@ -250,7 +250,7 @@ def existing_annotations():
         package = json.loads(request.data.decode())['valueHolder']
         operation_type = package['type']
         project_name = package['projectname']
-        data_controller = annotator_controller(project_name)
+        data_controller = Annotator_Controller(project_name)
         result = []
 
         if operation_type=="getSource":
@@ -293,7 +293,7 @@ def annotate_raw():
         operation_type = package['type']
         project_name = package['projectname']
         modality = package['modality']
-        data_controller = annotator_controller(project_name)
+        data_controller = Annotator_Controller(project_name)
 
         if operation_type=="getSource":
             dataset_path = data_controller.get_source_raw().get_local_copy()
@@ -319,7 +319,7 @@ def annotate_mention():
         project_name = package['projectname']
         operation_type = package['type']
         mentions = package['mentions']
-        data_controller = annotator_controller(project_name)
+        data_controller = Annotator_Controller(project_name)
 
         if operation_type=="Source":
             if os.path.exists(data_controller.mentions_source_path)==False:
@@ -346,7 +346,7 @@ def annotate_triples():
         package = json.loads(request.data.decode())['valueHolder']
         project_name = package['projectname']
         triples = package['triples']
-        data_controller = annotator_controller(project_name)
+        data_controller = Annotator_Controller(project_name)
 
         if os.path.exists(data_controller.triples_dataset_path)==False:
             os.mkdir(data_controller.triples_dataset_path)

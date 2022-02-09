@@ -18,7 +18,7 @@ def to_jsonl(filename:str, file_obj):
     writer = jsonlines.Writer(resultfile)
     writer.write_all(file_obj) 
 
-class dataset_git:
+class Dataset_Git:
     @staticmethod
     def create_project(project_name:str)->None:
         existing_tasks = Task.get_tasks(project_name=project_name)
@@ -107,7 +107,7 @@ class dataset_git:
         return Dataset.squash(new_dataset_name, dataset_ids=dataset_ids)
 
 
-class annotator_controller(dataset_git):
+class Annotator_Controller(Dataset_Git):
     def __init__(self, pull_dataset_project:str):
         self.raw_source_path = "./source_raw"
         self.raw_target_path = "./target_raw"
