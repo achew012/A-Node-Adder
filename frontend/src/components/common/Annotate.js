@@ -294,6 +294,7 @@ export default function Annotate({}) {
       case "Text":
         return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={tokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}></TextFrame>
       case "Audio":
+
       case "Image": 
       default: 
         return <Container><InputLabel>Blank Space</InputLabel></Container>;

@@ -3,7 +3,7 @@ import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Container, Row, Button, Col } from 'react-bootstrap';
 
-import TextBase from './TextBase';
+import TextBase from './AudioBase';
 
 
 // mentions only manages current highlighted selections 
@@ -89,8 +89,8 @@ export default function TextFrame({tokenIndex, setTokenIndex, tokensList, mentio
           <Grid item xs={2}><Button onClick={handleSaveMentions}>Save to Datasets</Button></Grid>
         </Row>
         <Row className={classes.row} style={{backgroundColor: "lightblue"}}>
-          <Grid item xs={12} className={classes.scrollable}>        
-            {renderAnnotator()}
+          <Grid item xs={12} className={classes.scrollable}>
+                    
           </Grid>
         </Row>
       </Col>

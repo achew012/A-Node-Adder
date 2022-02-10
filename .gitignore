@@ -9,4 +9,5 @@ backend/audio
 backend/__pycache__
 backend/.ipynb_checkpoints
 config/*
+.vscode
 
