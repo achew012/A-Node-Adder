@@ -76,8 +76,7 @@ def list_objects(bucket_name, path):
 
 def delete_object(bucket_name, prefix, filename, recursive=False):
     if recursive == False:
-        minio_client.remove_object(
-            bucket_name, "{}/{}".format(prefix, filename))
+        minio_client.remove_object(bucket_name, "{}/{}".format(prefix, filename))
     else:
         objects_to_delete = minio_client.list_objects(
             bucket_name, prefix=prefix, recursive=True
@@ -190,13 +189,11 @@ def fileupload():
 
         if annotator_type == "Source":
             result = read_file(filetype, request.files[path])
-            to_jsonl(
-                "{}/dataset.jsonl".format(data_controller.raw_source_path), result)
+            to_jsonl("{}/dataset.jsonl".format(data_controller.raw_source_path), result)
             data_controller.init_source_raw(project_name=project_name)
         elif annotator_type == "Target":
             result = read_file(filetype, request.files[path])
-            to_jsonl(
-                "{}/dataset.jsonl".format(data_controller.raw_target_path), result)
+            to_jsonl("{}/dataset.jsonl".format(data_controller.raw_target_path), result)
             data_controller.init_target_raw(project_name=project_name)
 
         result = "200 - file uploaded"
@@ -232,8 +229,12 @@ def projectlist():
             minio_client.make_bucket(project_name)
             project_list = list_buckets()
 
-            # put_json(project_name, "{}/{}".format("annotations", 'annotated_obj'), [])
-            # put_json(project_name, "{}/{}".format("annotators", 'current_annotators'), [])
+            put_json(
+                project_name, "annotators", {"Source": "", "Target": "", "Relation": []}
+            )
+            put_json(
+                project_name, "classes", {"Source": [], "Target": [], "Relation": []}
+            )
 
         elif operation_type == "delete":
             delete_object(project_name, "", "", recursive=True)
@@ -267,11 +268,9 @@ def projectinfo():
         data_controller = Annotator_Controller(project_name)
 
         if operation_type == "Source":
-            response = jsonify(
-                {"answer": [data_controller.get_source_raw().id]})
+            response = jsonify({"answer": [data_controller.get_source_raw().id]})
         elif operation_type == "Target":
-            response = jsonify(
-                {"answer": [data_controller.get_target_raw().id]})
+            response = jsonify({"answer": [data_controller.get_target_raw().id]})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -358,12 +357,10 @@ def annotate_raw():
 
         if operation_type == "getSource":
             dataset_path = data_controller.get_source_raw().get_local_copy()
-            dataset = load_jsonl(
-                load_path="{}/dataset.jsonl".format(dataset_path))
+            dataset = load_jsonl(load_path="{}/dataset.jsonl".format(dataset_path))
         elif operation_type == "getTarget":
             dataset_path = data_controller.get_target_raw().get_local_copy()
-            dataset = load_jsonl(
-                load_path="{}/dataset.jsonl".format(dataset_path))
+            dataset = load_jsonl(load_path="{}/dataset.jsonl".format(dataset_path))
 
         response = jsonify({"data": dataset})
 
@@ -445,9 +442,9 @@ def cache_classes():
     try:
         package = json.loads(request.data.decode())["valueHolder"]
         project_name = package["projectname"]
-
         classes = package["classes"]
         annotators = package["annotators"]
+
         put_json(project_name, "classes", classes)
         put_json(project_name, "annotators", annotators)
 
@@ -471,6 +468,8 @@ def get_classes():
     try:
         package = json.loads(request.data.decode())["valueHolder"]
         project_name = package["projectname"]
+
+        print(project_name)
 
         annotators = get_json(project_name, "classes")
         classes = get_json(project_name, "annotators")
