@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, jsonify, flash, url_for
 from flask_cors import CORS, cross_origin
 import threading
@@ -9,7 +10,11 @@ from werkzeug.utils import redirect, secure_filename
 import mysql.connector
 from minio import Minio
 import jsonlines
-import os, sys, shutil, re, json
+import os
+import sys
+import shutil
+import re
+import json
 import io
 import traceback
 
@@ -28,7 +33,7 @@ minio_client = Minio(
 project_name = "default"
 
 
-def put_json(bucket_name, object_name, d):
+def put_json(bucket_name: str, object_name: str, d: object) -> None:
     """
     jsonify a dict and write it as object to the bucket
     """
@@ -47,7 +52,7 @@ def put_json(bucket_name, object_name, d):
     )
 
 
-def get_json(bucket_name, object_name):
+def get_json(bucket_name: str, object_name: str) -> dict:
     """
     get stored json object from the bucket
     """
@@ -55,7 +60,7 @@ def get_json(bucket_name, object_name):
     return json.load(io.BytesIO(data.data))
 
 
-def list_buckets():
+def list_buckets() -> list:
     buckets = minio_client.list_buckets()
     return [bucket.name for bucket in buckets]
 
@@ -71,7 +76,8 @@ def list_objects(bucket_name, path):
 
 def delete_object(bucket_name, prefix, filename, recursive=False):
     if recursive == False:
-        minio_client.remove_object(bucket_name, "{}/{}".format(prefix, filename))
+        minio_client.remove_object(
+            bucket_name, "{}/{}".format(prefix, filename))
     else:
         objects_to_delete = minio_client.list_objects(
             bucket_name, prefix=prefix, recursive=True
@@ -122,9 +128,6 @@ def get_user_hash(username, users_dict):
     else:
         hashstring = None
     return hashstring
-
-
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
 @app.route("/login", methods=["POST"])
@@ -187,11 +190,13 @@ def fileupload():
 
         if annotator_type == "Source":
             result = read_file(filetype, request.files[path])
-            to_jsonl("{}/dataset.jsonl".format(data_controller.raw_source_path), result)
+            to_jsonl(
+                "{}/dataset.jsonl".format(data_controller.raw_source_path), result)
             data_controller.init_source_raw(project_name=project_name)
         elif annotator_type == "Target":
             result = read_file(filetype, request.files[path])
-            to_jsonl("{}/dataset.jsonl".format(data_controller.raw_target_path), result)
+            to_jsonl(
+                "{}/dataset.jsonl".format(data_controller.raw_target_path), result)
             data_controller.init_target_raw(project_name=project_name)
 
         result = "200 - file uploaded"
@@ -262,9 +267,11 @@ def projectinfo():
         data_controller = Annotator_Controller(project_name)
 
         if operation_type == "Source":
-            response = jsonify({"answer": [data_controller.get_source_raw().id]})
+            response = jsonify(
+                {"answer": [data_controller.get_source_raw().id]})
         elif operation_type == "Target":
-            response = jsonify({"answer": [data_controller.get_target_raw().id]})
+            response = jsonify(
+                {"answer": [data_controller.get_target_raw().id]})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -351,10 +358,12 @@ def annotate_raw():
 
         if operation_type == "getSource":
             dataset_path = data_controller.get_source_raw().get_local_copy()
-            dataset = load_jsonl(load_path="{}/dataset.jsonl".format(dataset_path))
+            dataset = load_jsonl(
+                load_path="{}/dataset.jsonl".format(dataset_path))
         elif operation_type == "getTarget":
             dataset_path = data_controller.get_target_raw().get_local_copy()
-            dataset = load_jsonl(load_path="{}/dataset.jsonl".format(dataset_path))
+            dataset = load_jsonl(
+                load_path="{}/dataset.jsonl".format(dataset_path))
 
         response = jsonify({"data": dataset})
 
@@ -417,6 +426,60 @@ def annotate_triples():
 
         data_controller.set_triples_annotations(triples)
         response = jsonify({"triples": triples})
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(
+            traceback.print_exception(
+                exc_type, exc_value, exc_traceback, file=sys.stdout
+            )
+        )
+        response = jsonify({"error": str(e)})
+
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
+
+
+@app.route("/cacheClasses", methods=["POST"])
+def cache_classes():
+    try:
+        package = json.loads(request.data.decode())["valueHolder"]
+        project_name = package["projectname"]
+
+        classes = package["classes"]
+        annotators = package["annotators"]
+        put_json(project_name, "classes", classes)
+        put_json(project_name, "annotators", annotators)
+
+        response = jsonify({})
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(
+            traceback.print_exception(
+                exc_type, exc_value, exc_traceback, file=sys.stdout
+            )
+        )
+        response = jsonify({"error": str(e)})
+
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
+
+
+@app.route("/getClasses", methods=["POST"])
+def get_classes():
+    try:
+        package = json.loads(request.data.decode())["valueHolder"]
+        project_name = package["projectname"]
+
+        annotators = get_json(project_name, "classes")
+        classes = get_json(project_name, "annotators")
+        if annotators is None:
+            annotators = {"Source": "", "Target": "", "Relation": []}
+        if classes is None:
+            classes = {"Source": [], "Target": [], "Relation": []}
+
+        response = jsonify({"annotators": annotators, "classes": classes})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()

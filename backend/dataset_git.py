@@ -3,7 +3,11 @@
 
 from pickle import NONE
 from clearml import Task, StorageManager, Dataset
-import sys, json, os, jsonlines, ipdb
+import sys
+import json
+import os
+import jsonlines
+import ipdb
 import shutil
 
 
@@ -50,7 +54,8 @@ class Dataset_Git:
         return dataset.id
 
     def __init__(self, pull_dataset_project: str, root_path="datasets/annotations"):
-        self.pull_dataset_project = "{}/{}".format(root_path, pull_dataset_project)
+        self.pull_dataset_project = "{}/{}".format(
+            root_path, pull_dataset_project)
         self.version_ids = [
             version["id"]
             for version in Dataset.list_datasets(
@@ -114,6 +119,7 @@ class Dataset_Git:
                 dataset_name=dataset_name,
                 dataset_id=dataset_id,
             )
+            return None
         except Exception as e:
             return e
 
@@ -213,7 +219,8 @@ class Annotator_Controller(Dataset_Git):
         new_source_mentions_dataset = self.create_empty_dataset_task(
             "new_source_mentions", parents=[source_mentions_dataset.id]
         )
-        new_source_mentions_dataset.sync_folder(self.mentions_source_path, verbose=True)
+        new_source_mentions_dataset.sync_folder(
+            self.mentions_source_path, verbose=True)
         new_source_mentions_dataset.upload()
         new_source_mentions_dataset.finalize()
 
@@ -243,7 +250,8 @@ class Annotator_Controller(Dataset_Git):
         new_target_mentions_dataset = self.create_empty_dataset_task(
             "new_target_mentions", parents=[target_mentions_dataset.id]
         )
-        new_target_mentions_dataset.sync_folder(self.mentions_target_path, verbose=True)
+        new_target_mentions_dataset.sync_folder(
+            self.mentions_target_path, verbose=True)
         new_target_mentions_dataset.upload()
         new_target_mentions_dataset.finalize()
 
@@ -263,7 +271,8 @@ class Annotator_Controller(Dataset_Git):
         if triples_dataset == None:
             triples_dataset = self.create_empty_dataset_task(
                 "triples_dataset",
-                parents=[self.get_target_mentions().id, self.get_source_mentions().id],
+                parents=[self.get_target_mentions(
+                ).id, self.get_source_mentions().id],
             )
             triples_dataset.finalize()
         triples_dataset.get_mutable_local_copy(
@@ -274,7 +283,8 @@ class Annotator_Controller(Dataset_Git):
         new_triples_dataset = self.create_empty_dataset_task(
             "new_triples_dataset", parents=[triples_dataset.id]
         )
-        new_triples_dataset.sync_folder(self.triples_dataset_path, verbose=True)
+        new_triples_dataset.sync_folder(
+            self.triples_dataset_path, verbose=True)
         new_triples_dataset.upload()
         new_triples_dataset.finalize()
 
