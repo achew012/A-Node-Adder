@@ -166,11 +166,11 @@ class Dataset_Git:
 
 class Annotator_Controller(Dataset_Git):
     def __init__(self, pull_dataset_project: str):
-        self.raw_source_path = "./source_raw"
-        self.raw_target_path = "./target_raw"
-        self.mentions_source_path = "./source_mentions"
-        self.mentions_target_path = "./target_mentions"
-        self.triples_dataset_path = "./triples_dataset"
+        self.raw_source_path = "/tmp/source_raw"
+        self.raw_target_path = "/tmp/target_raw"
+        self.mentions_source_path = "/tmp/source_mentions"
+        self.mentions_target_path = "/tmp/target_mentions"
+        self.triples_dataset_path = "/tmp/triples_dataset"
         super(Annotator_Controller, self).__init__(pull_dataset_project)
 
     def get_source_raw(self) -> Dataset:
@@ -295,6 +295,10 @@ class Annotator_Controller(Dataset_Git):
         Dataset.delete(dataset_id=triples_dataset.id)
         return None
 
+
+# nsc.file_entries_dict[nsc.list_files()[0]]
+# nsc.list_files()
+# int(nsc.file_entries_dict["audio/004710178.wav"].artifact_name.replace("data_", ""))
 
 # #Initialize
 # git = dataset_git("datasets/test")

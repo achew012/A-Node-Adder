@@ -104,7 +104,7 @@ export default function Project() {
       projectname: projectName,
     };
 
-    axios.post('http://' + SERVER_URL + '/cacheClasses', valueHolder).then(res => {
+    axios.post('http://' + SERVER_URL + '/cacheClasses', { valueHolder }).then(res => {
       var response = res['data']
       console.log("Class Caching status:", response)
     });
@@ -117,10 +117,9 @@ export default function Project() {
       projectname: projectName,
     };
 
-    axios.post('http://' + SERVER_URL + '/getClasses', valueHolder).then(res => {
+    axios.post('http://' + SERVER_URL + '/getClasses', { valueHolder }).then(res => {
       var response = res['data']
       console.log("Retrieved Existing Classes", response)
-
       setClasses(response["classes"]);
       setAnnotators(response["annotators"]);
     });
@@ -181,8 +180,15 @@ export default function Project() {
     getCachedClasses();
   }, []);
 
+  // useEffect(() => {
+  //   console.log(selectedClasses)
+  // }, [selectedClasses]);
+
   useEffect(() => {
-  }, [annotators]);
+    setSRCTask(annotators["Source"])
+    setTGTTask(annotators["Target"])
+    setRELTask(annotators["Relation"])
+  }, [annotators, selectedClasses]);
 
   return (
     <Container>
@@ -191,7 +197,7 @@ export default function Project() {
         <TableBody>
           <TableRow>
             <TableCell>Project Name: {projectName}</TableCell>
-            <Button> Cache Classes </Button>
+            <Button className={classes.button} onClick={cacheClasses}> Save Settings </Button>
           </TableRow>
 
           <Task

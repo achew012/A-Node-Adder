@@ -1,5 +1,5 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request, jsonify, flash, url_for
+from flask import Flask, render_template, request, jsonify, flash, url_for, send_from_directory
 from flask_cors import CORS, cross_origin
 import threading
 import queue
@@ -17,11 +17,13 @@ import re
 import json
 import io
 import traceback
+import zipfile
 
 from dataset_git import Annotator_Controller, load_jsonl, to_jsonl
 
 access_key = os.environ["AWS_ACCESS_KEY_ID"]
 secret_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+
 minio_client = Minio(
     "s3:9000",
     access_key=access_key,
@@ -30,7 +32,7 @@ minio_client = Minio(
     secure=False,
 )
 
-project_name = "default"
+# project_name = "default"
 
 
 def put_json(bucket_name: str, object_name: str, d: object) -> None:
@@ -76,7 +78,8 @@ def list_objects(bucket_name, path):
 
 def delete_object(bucket_name, prefix, filename, recursive=False):
     if recursive == False:
-        minio_client.remove_object(bucket_name, "{}/{}".format(prefix, filename))
+        minio_client.remove_object(
+            bucket_name, "{}/{}".format(prefix, filename))
     else:
         objects_to_delete = minio_client.list_objects(
             bucket_name, prefix=prefix, recursive=True
@@ -95,7 +98,13 @@ CORS(app, resources=r"/*", supports_credentials=True)
 users_dict = {"admin": "test"}
 
 
-def read_file(filetype, file_obj):
+def handle_zip(zip_file_obj, write_path):
+    with zipfile.ZipFile(zip_file_obj, 'r') as zip_ref:
+        zip_ref.extractall(write_path)
+    return None
+
+
+def read_file(filetype: str, file_obj: object):
     if "doc" in filetype:
         print("DOCX ", filetype)
         doc = docx.Document(file_obj)
@@ -149,24 +158,16 @@ def login():
             add_user(user, hashstring)
             result = "create success"
 
-        response = jsonify({"answer": result})
-
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        result = "File format error: {}".format(e)
-        response = jsonify({"answer": str(e)})
+        result = traceback.format_exception(exc_type, exc_value, exc_traceback)
 
-    print("Access Control is allowed")
+    response = jsonify({"answer": result})
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
 
-@app.route("/file", methods=["POST"])
+@app.route("/fileUpload", methods=["POST"])
 def fileupload():
     global project_name
 
@@ -188,24 +189,36 @@ def fileupload():
             os.mkdir(data_controller.raw_target_path)
 
         if annotator_type == "Source":
-            result = read_file(filetype, request.files[path])
-            to_jsonl("{}/dataset.jsonl".format(data_controller.raw_source_path), result)
+
+            if "zip" in filetype:
+                handle_zip(request.files[path],
+                           data_controller.raw_source_path)
+                result = []
+            else:
+                result = read_file(filetype, request.files[path])
+                to_jsonl(
+                    "{}/dataset.jsonl".format(data_controller.raw_source_path), result)
+
             data_controller.init_source_raw(project_name=project_name)
+
         elif annotator_type == "Target":
-            result = read_file(filetype, request.files[path])
-            to_jsonl("{}/dataset.jsonl".format(data_controller.raw_target_path), result)
+
+            if "zip" in filetype:
+                handle_zip(request.files[path],
+                           data_controller.raw_target_path)
+                result = []
+            else:
+                result = read_file(filetype, request.files[path])
+                to_jsonl(
+                    "{}/dataset.jsonl".format(data_controller.raw_target_path), result)
+
             data_controller.init_target_raw(project_name=project_name)
 
         result = "200 - file uploaded"
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        result = "File format error: {}".format(e)
+        result = traceback.format_exception(exc_type, exc_value, exc_traceback)
 
     response = jsonify({"answer": result})
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -226,14 +239,17 @@ def projectlist():
             project_list = list_buckets()
         elif operation_type == "create":
             user_name = package["user"]
-            minio_client.make_bucket(project_name)
             project_list = list_buckets()
+            if project_name not in project_list:
+                minio_client.make_bucket(project_name)
 
             put_json(
-                project_name, "annotators", {"Source": "", "Target": "", "Relation": []}
+                project_name, "annotators", {
+                    "Source": "", "Target": "", "Relation": []}
             )
             put_json(
-                project_name, "classes", {"Source": [], "Target": [], "Relation": []}
+                project_name, "classes", {
+                    "Source": [], "Target": [], "Relation": []}
             )
 
         elif operation_type == "delete":
@@ -245,13 +261,8 @@ def projectlist():
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        result = "File format error: {}".format(e)
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
@@ -268,18 +279,16 @@ def projectinfo():
         data_controller = Annotator_Controller(project_name)
 
         if operation_type == "Source":
-            response = jsonify({"answer": [data_controller.get_source_raw().id]})
+            response = jsonify(
+                {"answer": [data_controller.get_source_raw().id]})
         elif operation_type == "Target":
-            response = jsonify({"answer": [data_controller.get_target_raw().id]})
+            response = jsonify(
+                {"answer": [data_controller.get_target_raw().id]})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
@@ -335,12 +344,8 @@ def existing_annotations():
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
@@ -354,24 +359,30 @@ def annotate_raw():
         project_name = package["projectname"]
         modality = package["modality"]
         data_controller = Annotator_Controller(project_name)
+        part_num = 0
 
         if operation_type == "getSource":
-            dataset_path = data_controller.get_source_raw().get_local_copy()
-            dataset = load_jsonl(load_path="{}/dataset.jsonl".format(dataset_path))
+            if modality in ["Audio", "Images"]:
+                #num_parts = data_controller.get_source_raw().get_num_chunks()
+                dataset = data_controller.get_source_raw().list_files()
+            else:
+                dataset_path = data_controller.get_source_raw().get_local_copy()
+                dataset = load_jsonl(
+                    load_path="{}/dataset.jsonl".format(dataset_path))
         elif operation_type == "getTarget":
-            dataset_path = data_controller.get_target_raw().get_local_copy()
-            dataset = load_jsonl(load_path="{}/dataset.jsonl".format(dataset_path))
+            if modality in ["Audio", "Images"]:
+                dataset = data_controller.get_target_raw().list_files()
+            else:
+                dataset_path = data_controller.get_target_raw().get_local_copy()
+                dataset = load_jsonl(
+                    load_path="{}/dataset.jsonl".format(dataset_path))
 
         response = jsonify({"data": dataset})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
@@ -399,12 +410,8 @@ def annotate_mention():
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
@@ -426,12 +433,8 @@ def annotate_triples():
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
@@ -452,12 +455,8 @@ def cache_classes():
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
@@ -471,8 +470,8 @@ def get_classes():
 
         print(project_name)
 
-        annotators = get_json(project_name, "classes")
-        classes = get_json(project_name, "annotators")
+        annotators = get_json(project_name, "annotators")
+        classes = get_json(project_name, "classes")
         if annotators is None:
             annotators = {"Source": "", "Target": "", "Relation": []}
         if classes is None:
@@ -482,15 +481,53 @@ def get_classes():
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, file=sys.stdout
-            )
-        )
-        response = jsonify({"error": str(e)})
+        response = jsonify(
+            {"error": traceback.format_exception(exc_type, exc_value, exc_traceback)})
 
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
+
+@app.route("/getDataSlice", methods=["POST"])
+def get_data_slice():
+    try:
+        package = json.loads(request.data.decode())["valueHolder"]
+        project_name = package["projectname"]
+        annotator_type = package["annotatortype"]
+        file_name = package["filename"]
+        data_controller = Annotator_Controller(project_name)
+
+        if annotator_type == "Source":
+            raw_dataset = data_controller.get_source_raw()
+            artifact_name = raw_dataset.file_entries_dict[file_name].artifact_name
+            if artifact_name == "data":
+                part_num = 0
+            else:
+                part_num = int(artifact_name.replace(
+                    "data_", ""))
+            raw_dataset_path = raw_dataset.get_local_copy(part=part_num)
+            return send_from_directory(directory=raw_dataset_path, filename=file_name, as_attachment=False)
+        elif annotator_type == "Target":
+            raw_dataset = data_controller.get_target_raw()
+            artifact_name = raw_dataset.file_entries_dict[file_name].artifact_name
+            if artifact_name == "data":
+                part_num = 0
+            else:
+                part_num = int(artifact_name.replace(
+                    "data_", ""))
+            raw_dataset_path = raw_dataset.get_local_copy(part=part_num)
+            return send_from_directory(directory=raw_dataset_path, filename=file_name, as_attachment=False)
+        else:
+            return {"error": "invalid annotator type"}
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        response = jsonify(
+            {"error": traceback.format_exception(exc_type, exc_value, exc_traceback)})
+        return response
+
+    # response.headers.add("Access-Control-Allow-Origin", "*")
+    # return response
 
 
 # app.run("0.0.0.0", debug=False)

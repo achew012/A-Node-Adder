@@ -66,7 +66,37 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
   };
 
   // On file upload (click the upload button) 
-  function onFileUpload() {
+  function onZipFileUpload(e) {
+    console.log("file uploading...")
+    // Create an object of formData 
+    const formData = new FormData();
+
+    if (selectedFile.state) {
+      // Update the formData object
+
+      formData.append(
+        projectName + '///' + type + '///' + selectedFile.state.name,
+        selectedFile.state,
+      );
+
+      // // Details of the uploaded file 
+      console.log('filetype', selectedFile.state.type);
+
+      if (selectedFile.state.type == "application/zip") {
+        // Request made to the backend api 
+        // Send formData object 
+        axios.post('http://' + SERVER_URL + '/fileUpload', formData).then(res => {
+          console.log(res.data);
+          // setDisplay(res.data.answer);
+        });
+      } else {
+        alert("Invalid File Type")
+      }
+    }
+  };
+
+  // On file upload (click the upload button) 
+  function onFileUpload(e) {
     console.log("file uploading...")
     // Create an object of formData 
     const formData = new FormData();
@@ -84,7 +114,7 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
 
       // Request made to the backend api 
       // Send formData object 
-      axios.post('http://' + SERVER_URL + '/file', formData).then(res => {
+      axios.post('http://' + SERVER_URL + '/fileUpload', formData).then(res => {
         console.log(res.data);
         // setDisplay(res.data.answer);
       });
@@ -115,29 +145,69 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
   };
 
   function displayTask() {
-    if (selectedTask != "Classes") {
-      return (
-        <Container>
-          <TableCell className={classes.tablecell}>
-            <input type="file" onChange={onFileChange} />
-            {fileData()}
-            <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
-          </TableCell>
-          <TableCell className={classes.tablecell}>
-            {displayDataset()}
-          </TableCell>
-        </Container>
-      );
-    } else {
-      return (
-        <Container>
-          <TableCell className={classes.tablecell}>
-            <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
-          </TableCell>
-        </Container>
-      );
+    switch (selectedTask) {
+      case "Classes":
+        return (
+          <Container>
+            <TableCell className={classes.tablecell}>
+              <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
+            </TableCell>
+          </Container>
+        );
+      case "Audio":
+        return (
+          <Container>
+            <TableCell className={classes.tablecell}>
+              <input type="file" onChange={onFileChange} accept=".zip,.rar,.7zip, audio/*" />
+              {fileData()}
+              <Button className={classes.button} onClick={onZipFileUpload}>Upload Audio Zip</Button>
+            </TableCell>
+            <TableCell className={classes.tablecell}>
+              {displayDataset()}
+            </TableCell>
+          </Container>
+        );
+      default:
+        return (
+          <Container>
+            <TableCell className={classes.tablecell}>
+              <input type="file" onChange={onFileChange} />
+              {fileData()}
+              <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
+            </TableCell>
+            <TableCell className={classes.tablecell}>
+              {displayDataset()}
+            </TableCell>
+          </Container>
+        );
     }
   }
+
+
+  // function displayTask() {
+  //   if (selectedTask != "Classes") {
+  //     return (
+  //       <Container>
+  //         <TableCell className={classes.tablecell}>
+  //           <input type="file" onChange={onFileChange} />
+  //           {fileData()}
+  //           <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
+  //         </TableCell>
+  //         <TableCell className={classes.tablecell}>
+  //           {displayDataset()}
+  //         </TableCell>
+  //       </Container>
+  //     );
+  //   } else {
+  //     return (
+  //       <Container>
+  //         <TableCell className={classes.tablecell}>
+  //           <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
+  //         </TableCell>
+  //       </Container>
+  //     );
+  //   }
+  // }
 
   function addDefault(event) {
     // event.preventDefault();      
