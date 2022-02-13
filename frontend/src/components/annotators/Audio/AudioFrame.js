@@ -34,7 +34,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   });
 
   const classes = useStyles();
-  const [wave, setWave] = useState(null)
+  const [waveToRender, setWaveToRender] = useState(null)
   const [time, setTime] = useState(Date.now())
 
   function handleNextIndex(e) {
@@ -45,7 +45,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
     } else {
       setTokenIndex(0)
     }
-    getDataSlice(annotatorType, audioList[tokenIndex], setWave)
+    getDataSlice(annotatorType, audioList[tokenIndex], setWaveToRender)
   }
 
   function handlePrevIndex(e) {
@@ -56,7 +56,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
     } else {
       setTokenIndex(audioList.length - 1)
     }
-    getDataSlice(annotatorType, audioList[tokenIndex], setWave)
+    getDataSlice(annotatorType, audioList[tokenIndex], setWaveToRender)
   }
 
   function handleSaveMentions() {
@@ -79,21 +79,31 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   //   );
   // }
 
+  function renderWave() {
+    return (
+      <Container>
+        <audio controls>
+          <source src={waveToRender} type="audio/wav"></source>
+        </audio>
+      </Container>
+    );
+  }
+
   useEffect(() => {
-    console.log(wave)
-  }, [mentionsList, wave]);
+  }, [mentionsList, waveToRender]);
 
   return (
     <Container className={classes.main}>
       <Col>
         <Row className={classes.row}>
           <Grid item xs={4}><Button onClick={handlePrevIndex}>Prev</Button></Grid>
-          <Grid item xs={4}>{audioList[tokenIndex]}</Grid>
+          <Grid item xs={4}>{tokenIndex} - {audioList[tokenIndex]}</Grid>
           <Grid item xs={2}><Button onClick={handleNextIndex}>Next</Button></Grid>
           <Grid item xs={2}><Button onClick={handleSaveMentions}>Save to Datasets</Button></Grid>
         </Row>
         <Row className={classes.row} style={{ backgroundColor: "lightblue" }}>
           <Grid item xs={12} className={classes.scrollable}>
+            {renderWave()}
           </Grid>
         </Row>
       </Col>

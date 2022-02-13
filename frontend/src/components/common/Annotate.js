@@ -245,8 +245,7 @@ export default function Annotate({ }) {
     };
 
     axios.post('http://' + SERVER_URL + '/getDataSlice', { valueHolder }).then(res => {
-      var dataSlice = res.data;
-      setWave(dataSlice);
+      setWave(filename)
     }
     );
   }

@@ -1,3 +1,4 @@
+from fileinput import filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, jsonify, flash, url_for, send_from_directory
 from flask_cors import CORS, cross_origin
@@ -90,9 +91,8 @@ def delete_object(bucket_name, prefix, filename, recursive=False):
 
 
 ################### INITIALISE VARIABLES ##########################
-
-app = Flask(__name__)
-ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg", "gif"}
+STATIC_PATH = 'web/static'
+app = Flask(__name__, static_url_path="", static_folder=STATIC_PATH)
 # CORS(app, resources={r"/login": {"origins": "*"}, "/projectslist": {"origins": "*"}, "/project": {"origins": "*"}, "/classes": {"origins": "*"}, "/projectslist": {"origins": "*"}, "/annotate": {"origins": "*"}})
 CORS(app, resources=r"/*", supports_credentials=True)
 users_dict = {"admin": "test"}
@@ -506,7 +506,11 @@ def get_data_slice():
                 part_num = int(artifact_name.replace(
                     "data_", ""))
             raw_dataset_path = raw_dataset.get_local_copy(part=part_num)
-            return send_from_directory(directory=raw_dataset_path, filename=file_name, as_attachment=False)
+            # can symbolink in future
+            shutil.copyfile(os.path.join(raw_dataset_path, filename),
+                            os.path.join(STATIC_PATH, file_name))
+            return send_from_directory(STATIC_PATH, file_name)
+
         elif annotator_type == "Target":
             raw_dataset = data_controller.get_target_raw()
             artifact_name = raw_dataset.file_entries_dict[file_name].artifact_name
@@ -516,7 +520,11 @@ def get_data_slice():
                 part_num = int(artifact_name.replace(
                     "data_", ""))
             raw_dataset_path = raw_dataset.get_local_copy(part=part_num)
-            return send_from_directory(directory=raw_dataset_path, filename=file_name, as_attachment=False)
+            # can symbolink in future
+            shutil.copyfile(os.path.join(raw_dataset_path, filename),
+                            os.path.join(STATIC_PATH, file_name))
+            return send_from_directory(STATIC_PATH, file_name)
+
         else:
             return {"error": "invalid annotator type"}
 
