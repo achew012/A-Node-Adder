@@ -92,7 +92,7 @@ def delete_object(bucket_name, prefix, filename, recursive=False):
 
 ################### INITIALISE VARIABLES ##########################
 STATIC_PATH = 'web/static'
-app = Flask(__name__, static_url_path="", static_folder=STATIC_PATH)
+app = Flask(__name__, static_url_path="/media", static_folder=STATIC_PATH)
 # CORS(app, resources={r"/login": {"origins": "*"}, "/projectslist": {"origins": "*"}, "/project": {"origins": "*"}, "/classes": {"origins": "*"}, "/projectslist": {"origins": "*"}, "/annotate": {"origins": "*"}})
 CORS(app, resources=r"/*", supports_credentials=True)
 users_dict = {"admin": "test"}
@@ -507,9 +507,10 @@ def get_data_slice():
                     "data_", ""))
             raw_dataset_path = raw_dataset.get_local_copy(part=part_num)
             # can symbolink in future
-            shutil.copyfile(os.path.join(raw_dataset_path, filename),
-                            os.path.join(STATIC_PATH, file_name))
-            return send_from_directory(STATIC_PATH, file_name)
+            # shutil.copyfile(os.path.join(raw_dataset_path, file_name),
+            #                 os.path.join(STATIC_PATH, file_name))
+            # return send_from_directory(STATIC_PATH, file_name, as_attachment=True)
+            return jsonify({"audio": open(os.path.join(raw_dataset_path, file_name), "rb")})
 
         elif annotator_type == "Target":
             raw_dataset = data_controller.get_target_raw()
@@ -521,9 +522,10 @@ def get_data_slice():
                     "data_", ""))
             raw_dataset_path = raw_dataset.get_local_copy(part=part_num)
             # can symbolink in future
-            shutil.copyfile(os.path.join(raw_dataset_path, filename),
-                            os.path.join(STATIC_PATH, file_name))
-            return send_from_directory(STATIC_PATH, file_name)
+            # shutil.copyfile(os.path.join(raw_dataset_path, file_name),
+            #                 os.path.join(STATIC_PATH, file_name))
+            # return send_from_directory(STATIC_PATH, file_name, as_attachment=True)
+            return jsonify({"audio": open(os.path.join(raw_dataset_path, file_name), "rb")})
 
         else:
             return {"error": "invalid annotator type"}

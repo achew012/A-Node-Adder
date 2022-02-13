@@ -8,7 +8,7 @@ import AudioBase from './AudioBase';
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
-export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, getDataSlice }) {
+export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, getDataSlice, objURL }) {
 
   const useStyles = makeStyles({
     main: {
@@ -34,7 +34,6 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   });
 
   const classes = useStyles();
-  const [waveToRender, setWaveToRender] = useState(null)
   const [time, setTime] = useState(Date.now())
 
   function handleNextIndex(e) {
@@ -45,7 +44,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
     } else {
       setTokenIndex(0)
     }
-    getDataSlice(annotatorType, audioList[tokenIndex], setWaveToRender)
+    getDataSlice(annotatorType, audioList[tokenIndex])
   }
 
   function handlePrevIndex(e) {
@@ -56,7 +55,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
     } else {
       setTokenIndex(audioList.length - 1)
     }
-    getDataSlice(annotatorType, audioList[tokenIndex], setWaveToRender)
+    getDataSlice(annotatorType, audioList[tokenIndex])
   }
 
   function handleSaveMentions() {
@@ -81,16 +80,13 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
 
   function renderWave() {
     return (
-      <Container>
-        <audio controls>
-          <source src={waveToRender} type="audio/wav"></source>
-        </audio>
-      </Container>
+      <AudioBase objURL={objURL}></AudioBase>
     );
   }
 
   useEffect(() => {
-  }, [mentionsList, waveToRender]);
+    console.log(objURL)
+  }, [mentionsList, objURL]);
 
   return (
     <Container className={classes.main}>

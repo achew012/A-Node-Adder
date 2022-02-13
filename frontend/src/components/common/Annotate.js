@@ -135,6 +135,7 @@ export default function Annotate({ }) {
   // Get from medium from tokenized document
   const [tokensList, setTokensList] = useState([['Placeholder Document']]);
   const [audioList, setAudioList] = useState([['Placeholder.wav']]);
+  const [objURL, setObjURL] = useState('')
 
   function handleSrcSelection(e) {
     e.preventDefault();
@@ -237,15 +238,21 @@ export default function Annotate({ }) {
   }
 
   //get source, get target, get relations for initialization
-  function getDataSlice(annotatorType, filename, setWave) {
+  function getDataSlice(annotatorType, filename) {
     const valueHolder = {
       annotatortype: annotatorType,
       projectname: projectName,
       filename: filename,
     };
 
+
     axios.post('http://' + SERVER_URL + '/getDataSlice', { valueHolder }).then(res => {
-      setWave(filename)
+
+      // ERROR NEED TO FIX THIS
+      var mediaSource = new MediaSource([res.data["audio"]]);
+      var mediaURL = URL.createObjectURL(mediaSource);
+      console.log(mediaURL);
+      setObjURL(mediaURL);
     }
     );
   }
@@ -313,7 +320,7 @@ export default function Annotate({ }) {
       case "Text":
         return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={tokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={audioList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={audioList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
       case "Image":
       default:
         return <Container><InputLabel>Blank Space</InputLabel></Container>;
@@ -325,7 +332,7 @@ export default function Annotate({ }) {
       case "Text":
         return <TextFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} tokensList={tokensList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={audioList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={audioList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
       case "Image":
       default:
         return <Container><InputLabel>Blank Space</InputLabel></Container>;
