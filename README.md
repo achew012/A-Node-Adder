@@ -20,7 +20,7 @@ To get a local copy up and running follow these simple example steps.
 
    ```
 
-2. Create a folder call ./config
+2. Create a folder called ./config
 
 Copy your clearml.conf into the ./config folder
 
