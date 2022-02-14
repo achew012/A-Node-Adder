@@ -10,13 +10,18 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-Create your own .env file inside /frontend/ and add the following configuration with your own credentials: (>5 characters)
+Create your own .env file inside /frontend/ and add the following configuration with your own credentials: (>5 characters for key and > 8 for secret)
    ```
-   AWS_ACCESS_KEY_ID=xxxx 
-   AWS_SECRET_ACCESS_KEY=xxxx
-   MINIO_ROOT_USER=xxxx
-   MINIO_ROOT_PASSWORD=xxxx
+   AWS_ACCESS_KEY_ID=xxxxx 
+   AWS_SECRET_ACCESS_KEY=xxxxxxxx
+   MINIO_ROOT_USER=xxxxx
+   MINIO_ROOT_PASSWORD=xxxxxxxx
    REACT_APP_SERVER_URL={ip address or domain}:{port}
+
+Create a folder call ./config
+
+copy your clearml.conf into the ./config folder
+
    ```
 ## TO RUN
 
@@ -38,12 +43,11 @@ Access the annotator on the browser: 0.0.0.0<br/>
 
 Data can be uploaded in the same format as specified in backend/news.jsonl  
 
-<br/>Default Layer1 user:
+<!-- <br/>Default Layer1 user:
 <br/>Default Layer1 password: 
 <br/>
 <br/>Default Layer2 user: &nbsp;
-<br/>Default Layer2 password: &nbsp;
-
+<br/>Default Layer2 password: &nbsp; -->
 
 ## System Architecture
 
