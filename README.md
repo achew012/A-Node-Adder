@@ -10,7 +10,7 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-Create your own .env file inside /frontend/ and add the following configuration with your own credentials: (>5 characters for key and > 8 for secret)
+1. Create your own .env file inside /frontend/ and add the following configuration with your own credentials: (>5 characters for key and > 8 for secret)
    ```
    AWS_ACCESS_KEY_ID=xxxxx 
    AWS_SECRET_ACCESS_KEY=xxxxxxxx
@@ -18,11 +18,13 @@ Create your own .env file inside /frontend/ and add the following configuration 
    MINIO_ROOT_PASSWORD=xxxxxxxx
    REACT_APP_SERVER_URL={ip address or domain}:{port}
 
-Create a folder call ./config
-
-copy your clearml.conf into the ./config folder
-
    ```
+
+2. Create a folder call ./config
+
+Copy your clearml.conf into the ./config folder
+
+
 ## TO RUN
 
 
