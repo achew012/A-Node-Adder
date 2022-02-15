@@ -1,6 +1,6 @@
 from fileinput import filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request, jsonify, flash, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, flash, url_for, send_from_directory, send_file
 from flask_cors import CORS, cross_origin
 import threading
 import queue
@@ -488,13 +488,12 @@ def get_classes():
     return response
 
 
-@app.route("/getDataSlice", methods=["POST"])
+@app.route("/getDataSlice", methods=["GET"])
 def get_data_slice():
     try:
-        package = json.loads(request.data.decode())["valueHolder"]
-        project_name = package["projectname"]
-        annotator_type = package["annotatortype"]
-        file_name = package["filename"]
+        project_name = request.args.get('projectname')
+        annotator_type = request.args.get('annotatortype')
+        file_name = request.args.get('filename')
         data_controller = Annotator_Controller(project_name)
 
         if annotator_type == "Source":
@@ -510,7 +509,7 @@ def get_data_slice():
             # shutil.copyfile(os.path.join(raw_dataset_path, file_name),
             #                 os.path.join(STATIC_PATH, file_name))
             # return send_from_directory(STATIC_PATH, file_name, as_attachment=True)
-            return jsonify({"audio": open(os.path.join(raw_dataset_path, file_name), "rb")})
+            return send_file(os.path.join(raw_dataset_path, file_name), attachment_filename=file_name)
 
         elif annotator_type == "Target":
             raw_dataset = data_controller.get_target_raw()
@@ -525,7 +524,7 @@ def get_data_slice():
             # shutil.copyfile(os.path.join(raw_dataset_path, file_name),
             #                 os.path.join(STATIC_PATH, file_name))
             # return send_from_directory(STATIC_PATH, file_name, as_attachment=True)
-            return jsonify({"audio": open(os.path.join(raw_dataset_path, file_name), "rb")})
+            return send_file(os.path.join(raw_dataset_path, file_name), attachment_filename=file_name)
 
         else:
             return {"error": "invalid annotator type"}

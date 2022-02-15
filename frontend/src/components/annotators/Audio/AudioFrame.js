@@ -36,26 +36,19 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   const classes = useStyles();
   const [time, setTime] = useState(Date.now())
 
+  useEffect(() => {
+    setMentionsList(mentionsList => ({ ...mentionsList, [tokenIndex]: { value: mentions.value } }));
+    getDataSlice(annotatorType, audioList[tokenIndex])
+  }, [audioList, tokenIndex]);
+
   function handleNextIndex(e) {
     e.preventDefault();
-    setMentionsList(mentionsList => ({ ...mentionsList, [tokenIndex]: { value: mentions.value } }));
-    if (tokenIndex + 1 < audioList.length) {
-      setTokenIndex(tokenIndex + 1)
-    } else {
-      setTokenIndex(0)
-    }
-    getDataSlice(annotatorType, audioList[tokenIndex])
+    setTokenIndex((tokenIndex + 1) % audioList.length);
   }
 
   function handlePrevIndex(e) {
     e.preventDefault();
-    setMentionsList(mentionsList => ({ ...mentionsList, [tokenIndex]: { value: mentions.value } }));
-    if (tokenIndex - 1 >= 0) {
-      setTokenIndex(tokenIndex - 1)
-    } else {
-      setTokenIndex(audioList.length - 1)
-    }
-    getDataSlice(annotatorType, audioList[tokenIndex])
+    setTokenIndex((tokenIndex + audioList.length - 1) % audioList.length);
   }
 
   function handleSaveMentions() {
@@ -85,7 +78,6 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   }
 
   useEffect(() => {
-    console.log(objURL)
   }, [mentionsList, objURL]);
 
   return (

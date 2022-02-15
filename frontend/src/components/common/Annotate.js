@@ -228,10 +228,13 @@ export default function Annotate({ }) {
       switch (operationType) {
         case "getSource":
           setSrcMentionsList(existingAnnotations);
+          break;
         case "getTarget":
           setTgtMentionsList(existingAnnotations);
+          break;
         case "getTriple":
           setAnnotatedTriples([...existingAnnotations]);
+          break;
       }
     }
     );
@@ -239,22 +242,8 @@ export default function Annotate({ }) {
 
   //get source, get target, get relations for initialization
   function getDataSlice(annotatorType, filename) {
-    const valueHolder = {
-      annotatortype: annotatorType,
-      projectname: projectName,
-      filename: filename,
-    };
-
-
-    axios.post('http://' + SERVER_URL + '/getDataSlice', { valueHolder }).then(res => {
-
-      // ERROR NEED TO FIX THIS
-      var mediaSource = new MediaSource([res.data["audio"]]);
-      var mediaURL = URL.createObjectURL(mediaSource);
-      console.log(mediaURL);
-      setObjURL(mediaURL);
-    }
-    );
+    const query = `http://${SERVER_URL}/getDataSlice?annotatortype=${annotatorType}&projectname=${projectName}&filename=${filename}`;
+    setObjURL(query);
   }
 
   //get source, get target, get relations for initialization
@@ -273,11 +262,12 @@ export default function Annotate({ }) {
             var tempArray = tokensList
             var newTokenslist = tempArray.concat(tokensDataset)
             setTokensList(newTokenslist);
+            break;
 
           case "Audio":
             var audioDataset = res.data["data"];
-            console.log(audioDataset)
             setAudioList(audioDataset)
+            break;
         }
       }
       );
@@ -397,8 +387,6 @@ export default function Annotate({ }) {
   }
 
   useEffect(() => {
-    console.log(srcMentionsList);
-    console.log(tgtMentionsList);
   }, [srcMentionsList, tgtMentionsList]);
 
   useEffect(() => {
