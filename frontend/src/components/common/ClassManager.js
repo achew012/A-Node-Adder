@@ -7,9 +7,8 @@ import {
   Button,
 } from 'react-bootstrap';
 
-import { makeStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
+import { makeStyles } from '@mui/styles';
+import Input from '@mui/material/Input';
 
 export default function ClassManager({ selectedClasses, setClasses, type }) {
 
@@ -38,7 +37,7 @@ export default function ClassManager({ selectedClasses, setClasses, type }) {
   const classList = selectedClasses[type]
 
   function handleClassAdd() {
-    if (classNameInput != '') {
+    if (classNameInput !== '') {
       const newClassList = selectedClasses
       newClassList[type] = [...new Set([...newClassList[type], classNameInput])]
       setClasses(newClassList)
@@ -49,13 +48,13 @@ export default function ClassManager({ selectedClasses, setClasses, type }) {
   function handleClassDelete(event) {
     var item = event.target.value;
     const newClassList = selectedClasses;
-    newClassList[type] = newClassList[type].filter(v => v != item);
+    newClassList[type] = newClassList[type].filter(v => v !== item);
     setClasses(newClassList);
     setTime(Date.now())
   }
 
   function displayClasses() {
-    if (selectedClasses[type] != null) {
+    if (selectedClasses[type] !== null) {
       return (
         <Container>
           {

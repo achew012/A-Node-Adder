@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import RangeSlider from './rangeSlider';
 import { textAlign } from '@mui/system';
 
-export default function AudioBase({ objURL, filename, selectedRange, setSelectedRange, mentions, setMentions, tokenIndex }) {
+export default function AudioView({ objURL, filename, selectedRange, setSelectedRange, mentions, setMentions, loadMentions }) {
 
   const useStyles = makeStyles({
     main: {
@@ -55,7 +55,6 @@ export default function AudioBase({ objURL, filename, selectedRange, setSelected
   const classes = useStyles();
   let ref = null;
   const [audio, setAudio] = useState(new Audio())
-  const [time, setTime] = useState(Date.now())
   var stepSize = 0.1
   var segmentEnd;
 
@@ -79,41 +78,18 @@ export default function AudioBase({ objURL, filename, selectedRange, setSelected
     if (segmentEnd && audio.currentTime >= segmentEnd) {
       audio.pause();
     }
+    console.log(audio.currentTime);
   }, false);
-
-  audio.onloadeddata = function () {
-    setSelectedRange([0, audio.duration])
-  }
 
   function audioPlay(startTime, endTime) {
     audio.currentTime = startTime;
-    segmentEnd = endTime - stepSize;
+    segmentEnd = endTime;
     audio.play()
   }
 
   function renderAudioPlayer() {
     return (
       <Container style={{ "backgroundColor": "#DEB887" }}>
-        <Row className={classes.player}>
-          <Grid item xs={4}>
-          </Grid>
-          <Grid item xs={4}>
-            <h5>Adjust me!</h5>
-          </Grid>
-          <Grid item xs={4}>
-          </Grid>
-          <RangeSlider maxRange={audio.duration} selectedRange={selectedRange} stepSize={stepSize} setSelectedRange={setSelectedRange}></RangeSlider>
-        </Row>
-        <Row>
-          <Grid item xs={4}>
-            Start
-          </Grid>
-          <Grid item xs={4}>
-          </Grid>
-          <Grid item xs={4}>
-            End
-          </Grid>
-        </Row>
         <Row className={classes.playerController}>
           <Grid item xs={4}>
             <Button className={classes.button} onClick={() => audio.pause()}>Pause</Button>
@@ -121,36 +97,26 @@ export default function AudioBase({ objURL, filename, selectedRange, setSelected
           <Grid item xs={4}>
             <Button className={classes.button} onClick={() => audioPlay(selectedRange[0], selectedRange[1])}>Play</Button>
           </Grid>
-          <Grid item xs={4}>
-            <Button className={classes.button} onClick={handleAddMentions}>Add</Button>
-          </Grid>
         </Row>
       </Container>
     );
   }
 
   useEffect(() => {
+    // ref.load();
     setAudio(new Audio(objURL));
   }, [objURL]);
 
   useEffect(() => {
-  }, [mentions, selectedRange]);
+    setSelectedRange([0, audio.duration])
+  }, [audio.duration]);
+
+  useEffect(() => {
+  }, [mentions]);
 
   return (
     <Container style={{ "margin": "5px", "minHeight": "150px", "padding": "5px" }}>
-      <Row style={{ "margin": "15px", "padding": "20px" }}>
-        <Grid item xs={6}>
-          <Row>
-            {renderAudioPlayer()}
-          </Row>
-          <Row>
-          </Row>
-        </Grid>
-        <Grid item xs={3}>
-        </Grid>
-        <Grid item xs={3}>
-        </Grid>
-      </Row>
+
     </Container >
   );
 }

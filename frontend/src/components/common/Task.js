@@ -4,16 +4,17 @@ import React, { Component, useEffect, useState } from 'react';
 import {
   Container,
   Button,
+  Row,
 } from 'react-bootstrap';
 
-import { makeStyles } from '@material-ui/core/styles';
-import TableCell from '@material-ui/core/TableCell';
-// import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import { makeStyles } from '@mui/styles';
+import Grid from '@mui/material/Grid';
+// import TableContainer from '@mui/material/core/TableContainer';
+import TableRow from '@mui/material/TableRow';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import ClassManager from './ClassManager';
 
 export default function Task({ selectedTask, setTask, annotators, type, projectName, existingDataset, selectedClasses, setClasses }) {
@@ -35,7 +36,7 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
       textAlign: 'center'
     },
 
-    tableCell: {
+    Grid: {
       // border: 'solid 1px black',
       minHeight: '100px',
       width: '33%',
@@ -148,66 +149,42 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
     switch (selectedTask) {
       case "Classes":
         return (
-          <Container>
-            <TableCell className={classes.tablecell}>
-              <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
-            </TableCell>
-          </Container>
+          <Grid item xs={8} className={classes.Grid}>
+            <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
+          </Grid>
         );
       case "Audio":
         return (
-          <Container>
-            <TableCell className={classes.tablecell}>
-              <input type="file" onChange={onFileChange} accept=".zip,.rar,.7zip, audio/*" />
-              {fileData()}
-              <Button className={classes.button} onClick={onZipFileUpload}>Upload Audio Zip</Button>
-            </TableCell>
-            <TableCell className={classes.tablecell}>
-              {displayDataset()}
-            </TableCell>
-          </Container>
+          <Grid item xs={8} className={classes.Grid}>
+            <Row>
+              <Grid item xs={6} className={classes.Grid}>
+                <input type="file" onChange={onFileChange} accept=".zip,.rar,.7zip, audio/*" />
+                {fileData()}
+                <Button className={classes.button} onClick={onZipFileUpload}>Upload Audio Zip</Button>
+              </Grid>
+              <Grid item xs={4} className={classes.Grid}>
+                {displayDataset()}
+              </Grid>
+            </Row>
+          </Grid>
         );
       default:
         return (
-          <Container>
-            <TableCell className={classes.tablecell}>
-              <input type="file" onChange={onFileChange} />
-              {fileData()}
-              <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
-            </TableCell>
-            <TableCell className={classes.tablecell}>
-              {displayDataset()}
-            </TableCell>
-          </Container>
+          <Grid item xs={8} className={classes.Grid}>
+            <Row>
+              <Grid item xs={6} className={classes.Grid}>
+                <input type="file" onChange={onFileChange} />
+                {fileData()}
+                <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
+              </Grid>
+              <Grid item xs={4} className={classes.Grid}>
+                {displayDataset()}
+              </Grid>
+            </Row>
+          </Grid>
         );
     }
   }
-
-
-  // function displayTask() {
-  //   if (selectedTask != "Classes") {
-  //     return (
-  //       <Container>
-  //         <TableCell className={classes.tablecell}>
-  //           <input type="file" onChange={onFileChange} />
-  //           {fileData()}
-  //           <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
-  //         </TableCell>
-  //         <TableCell className={classes.tablecell}>
-  //           {displayDataset()}
-  //         </TableCell>
-  //       </Container>
-  //     );
-  //   } else {
-  //     return (
-  //       <Container>
-  //         <TableCell className={classes.tablecell}>
-  //           <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
-  //         </TableCell>
-  //       </Container>
-  //     );
-  //   }
-  // }
 
   function addDefault(event) {
     // event.preventDefault();      
@@ -222,7 +199,7 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
   }
 
   function displayDataset() {
-    if (existingDataset != null) {
+    if (existingDataset !== null) {
       return (
         <Container>
           Attached:
@@ -236,9 +213,9 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
   }
 
   function displayAnnotator() {
-    if (type != "Relation") {
+    if (type !== "Relation") {
       return (
-        <TableCell className={classes.tableCell}>
+        <Grid item xs={4} className={classes.Grid}>
           <FormControl style={{ minWidth: '150px' }}>
             <InputLabel>{type} Task</InputLabel>
             <Select value={selectedTask} onChange={addAnnotator}>
@@ -248,35 +225,35 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
               <MenuItem value={'Images'}>Images</MenuItem>
             </Select>
           </FormControl>
-        </TableCell>
+        </Grid>
       );
     } else {
       addDefault()
       return (
-        <TableCell className={classes.tableCell}>
+        <Grid item xs={4} className={classes.Grid}>
           <FormControl style={{ minWidth: '150px' }}>
             <InputLabel>{type} Task</InputLabel>
             <Select value={"Classes"}>
               <MenuItem value={'Classes'}>Classes</MenuItem>
             </Select>
           </FormControl>
-        </TableCell>
+        </Grid>
       );
     }
   }
 
   return (
     <Container className={classes.cont}>
-      <TableRow>
-        <TableCell className={classes.tableHeader}>{type} Annotator</TableCell>
-        <TableCell className={classes.tableHeader}>Dataset/Classes</TableCell>
-      </TableRow>
-      <TableRow>
+      <Row>
+        <Grid item xs={4} className={classes.tableHeader}>{type} Annotator</Grid>
+        <Grid item xs={8} className={classes.tableHeader}>Dataset/Classes</Grid>
+      </Row>
+      <Row>
         {/* Checks what annotator to render */}
         {displayAnnotator()}
         {/* Checks what task features to render */}
         {displayTask()}
-      </TableRow>
+      </Row>
     </Container>
   );
 }

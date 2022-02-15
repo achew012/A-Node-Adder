@@ -1,5 +1,5 @@
-import { Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Grid } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import axios from 'axios';
 import React, { Component, useEffect, useState, useRef } from 'react';
 
@@ -16,10 +16,10 @@ import {
   Redirect,
 } from 'react-router-dom';
 
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import TextFrame from '../annotators/Text/TextFrame';
 import AudioFrame from '../annotators/Audio/AudioFrame';
 
@@ -28,6 +28,7 @@ export default function Annotate({ }) {
   const useStyles = makeStyles({
     source: {
       minHeight: '250px',
+      maxHeight: '500px',
       border: '1px solid black',
       marginRight: '1px',
       marginBottom: '1px',
@@ -36,6 +37,7 @@ export default function Annotate({ }) {
     },
     target: {
       minHeight: '250px',
+      maxHeight: '500px',
       border: '1px solid black',
       marginRight: '1px',
       marginBottom: '1px',
@@ -48,7 +50,7 @@ export default function Annotate({ }) {
       marginBottom: '1px',
       textAlign: 'center',
       overflowY: 'scroll',
-      padding: '2px,'
+      padding: '5px',
     },
 
     annotator: {
@@ -88,6 +90,7 @@ export default function Annotate({ }) {
     },
 
     button: {
+      minWidth: '100px',
       marginLeft: 'auto',
       marginRight: 'auto',
       marginTop: '5px',
@@ -96,6 +99,7 @@ export default function Annotate({ }) {
       backgroundColor: 'gray',
       border: 'solid 2px gray',
       color: 'black',
+      fontSize: '0.9em',
     },
 
   });
@@ -122,7 +126,7 @@ export default function Annotate({ }) {
   // tracks the current mentions highlighted in the current sample
   const [srcMentions, setSrcMentions] = useState({ value: [] });
   const [tgtMentions, setTgtMentions] = useState({ value: [] });
-  // holds the value of the selected source/target mention in the annotated triple 
+  // holds the value of the selected source/target mention in the currently annotated triple 
   const [selectedSrc, setSelectedSrc] = useState("");
   const [selectedRel, setSelectedRel] = useState("default");
   const [selectedTgt, setSelectedTgt] = useState("");
@@ -132,9 +136,9 @@ export default function Annotate({ }) {
   const [srcMentionsList, setSrcMentionsList] = useState({});
   const [tgtMentionsList, setTgtMentionsList] = useState({});
 
-  // Get from medium from tokenized document
+  // holds the path or tokens of the base data in each component
   const [tokensList, setTokensList] = useState([['Placeholder Document']]);
-  const [audioList, setAudioList] = useState([['Placeholder.wav']]);
+  const [mediaList, setMediaList] = useState([['Placeholder Media']]);
   const [objURL, setObjURL] = useState('')
 
   function handleSrcSelection(e) {
@@ -266,7 +270,7 @@ export default function Annotate({ }) {
 
           case "Audio":
             var audioDataset = res.data["data"];
-            setAudioList(audioDataset)
+            setMediaList(audioDataset)
             break;
         }
       }
@@ -310,7 +314,7 @@ export default function Annotate({ }) {
       case "Text":
         return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={tokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={audioList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
       case "Image":
       default:
         return <Container><InputLabel>Blank Space</InputLabel></Container>;
@@ -322,7 +326,7 @@ export default function Annotate({ }) {
       case "Text":
         return <TextFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} tokensList={tokensList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={audioList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
       case "Image":
       default:
         return <Container><InputLabel>Blank Space</InputLabel></Container>;
@@ -332,41 +336,94 @@ export default function Annotate({ }) {
   function renderMentions(type) {
     switch (type) {
       case "Target":
-        if (annotators["Target"] == "Classes") {
-          return (
-            <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
-              {targetClasses.map((item) =>
-                <MenuItem key={item} value={item}>{item}</MenuItem>
-              )}
-            </Select>
-          );
-        } else {
-          return (
-            <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
-              {tgtMentions.value.map((item) =>
-                <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
-              )}
-            </Select>
-          );
+        switch (annotators["Target"]) {
+          case "Classes":
+            return (
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                {targetClasses.map((item) =>
+                  <MenuItem key={item} value={item}>{item}</MenuItem>
+                )}
+              </Select>
+            );
+          case "Audio":
+            return (
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                {tgtMentions.value.map((item) =>
+                  <MenuItem key={item.join(" , ")} value={item}>{item.join(" , ")}</MenuItem>
+                )}
+              </Select>
+            );
+          default:
+            return (
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                {tgtMentions.value.map((item) =>
+                  <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
+                )}
+              </Select>
+            );
         }
+      // if (annotators["Target"] == "Classes") {
+      //   return (
+      //     <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+      //       {targetClasses.map((item) =>
+      //         <MenuItem key={item} value={item}>{item}</MenuItem>
+      //       )}
+      //     </Select>
+      //   );
+      // } else {
+      //   return (
+      //     <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+      //       {tgtMentions.value.map((item) =>
+      //         <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
+      //       )}
+      //     </Select>
+      //   );
+      // }
       case "Source":
-        if (annotators["Source"] == "Classes") {
-          return (
-            <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleSrcSelection}>
-              {sourceClasses.map((item) =>
-                <MenuItem key={item} value={item}>{item}</MenuItem>
-              )}
-            </Select>
-          );
-        } else {
-          return (
-            <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleSrcSelection}>
-              {srcMentions.value.map((item) =>
-                <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
-              )}
-            </Select>
-          );
+        switch (annotators["Source"]) {
+          case "Classes":
+            return (
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                {sourceClasses.map((item) =>
+                  <MenuItem key={item} value={item}>{item}</MenuItem>
+                )}
+              </Select>
+            );
+          case "Audio":
+            return (
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                {srcMentions.value.map((item) =>
+                  <MenuItem key={item.join(" , ")} value={item}>{item.join(" , ")}</MenuItem>
+                )}
+              </Select>
+            );
+          default:
+            return (
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                {srcMentions.value.map((item) =>
+                  <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
+                )}
+              </Select>
+            );
         }
+
+      // if (annotators["Source"] == "Classes") {
+      //   return (
+      //     <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleSrcSelection}>
+      //       {sourceClasses.map((item) =>
+      //         <MenuItem key={item} value={item}>{item}</MenuItem>
+      //       )}
+      //     </Select>
+      //   );
+      // } else {
+      //   return (
+      //     <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleSrcSelection}>
+      //       {srcMentions.value.map((item) =>
+      //         <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
+      //       )}
+      //     </Select>
+      //   );
+      // }
       case "Relation":
         return (
           <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleRelSelection}>
@@ -406,7 +463,7 @@ export default function Annotate({ }) {
   }, []);
 
   return (
-    <Container style={{ maxWidth: '80%', marginBottom: '25px' }}>
+    <Container style={{ maxWidth: '80%', marginBottom: '25px', padding: '30px' }}>
       {/* COMPONENT LEVEL ANNOTATIONS */}
       <Row>
         <Grid item xs={8}>

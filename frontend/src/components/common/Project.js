@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Container,
@@ -14,12 +14,8 @@ import {
   Redirect,
 } from 'react-router-dom';
 
-import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-// import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
+import { makeStyles } from '@mui/styles';
+import { Grid } from '@mui/material';
 import Task from './Task';
 
 export default function Project() {
@@ -29,27 +25,29 @@ export default function Project() {
     cont: {
       border: '1px solid black',
       minHeight: 600,
-      width: '98%',
-      padding: '5px'
+      width: '96%',
+      padding: '30px',
+      fontSize: '1.5em',
     },
 
-    tableHeader: {
-      // border: 'solid 1px black',
-      minHeight: 100,
-      margin: '10px',
-      fontSize: '1em',
-      padding: '20px',
-      overflowWrap: 'break-word',
-    },
+    // tableHeader: {
+    //   // border: 'solid 1px black',
+    //   minHeight: 100,
+    //   margin: '10px',
+    //   fontSize: '1em',
+    //   padding: '20px',
+    //   overflowWrap: 'break-word',
+    // },
 
-    tableCell: {
-      // border: 'solid 1px black',
-      minHeight: 100,
-      margin: '10px',
-      fontSize: '1em',
-      padding: '20px',
-      overflowWrap: 'break-word',
-    },
+    // tableCell: {
+    //   // border: 'solid 1px black',
+    //   minHeight: 100,
+    //   margin: '10px',
+    //   fontSize: '1em',
+    //   padding: '20px',
+    //   overflowWrap: 'break-word',
+    // },
+
     button: {
       margin: '5px',
       padding: '5px',
@@ -165,11 +163,12 @@ export default function Project() {
     //toggle between active annotations or dead buttons if no annotations to edit
     if (true) {
       return (
-        <TableCell colSpan={3}>
+        <Grid item xs={4}>
           <Link to={{ pathname: "/projects", state: { projectname: projectName, user: userName } }}><Button className={classes.button}>Back</Button></Link>
+          <Button className={classes.button} onClick={cacheClasses}> Save Settings </Button>
           <Link to={{ pathname: "/annotate", state: { projectname: projectName, user: userName, annotators: annotators, definedClasses: selectedClasses } }}><Button className={classes.button}>Annotate / Edit</Button></Link>
           {/* {downloadAnnotations()} */}
-        </TableCell>
+        </Grid>
       );
     }
   }
@@ -180,10 +179,6 @@ export default function Project() {
     getCachedClasses();
   }, []);
 
-  // useEffect(() => {
-  //   console.log(selectedClasses)
-  // }, [selectedClasses]);
-
   useEffect(() => {
     setSRCTask(annotators["Source"])
     setTGTTask(annotators["Target"])
@@ -191,57 +186,55 @@ export default function Project() {
   }, [annotators, selectedClasses]);
 
   return (
-    <Container>
+    <Container className={classes.cont}>
       {checkUser()}
-      <Table className={classes.cont}>
-        <TableBody>
-          <TableRow>
-            <TableCell>Project Name: {projectName}</TableCell>
-            <Button className={classes.button} onClick={cacheClasses}> Save Settings </Button>
-          </TableRow>
+      <Row>
+        <Grid item xs={4}></Grid>
+        <Grid item xs={4} style={{ "textAlign": "center" }}>Project Name: {projectName}</Grid>
+        <Grid item xs={4}></Grid>
+      </Row>
 
-          <Task
-            selectedTask={selectedSRCTask}
-            setTask={setSRCTask}
-            annotators={annotators}
-            type={"Source"}
-            SERVER_URL={SERVER_URL}
-            projectName={[projectName]}
-            existingDataset={existingSrcDataset}
-            selectedClasses={selectedClasses}
-            setClasses={setClasses}
-          ></Task>
+      <Task
+        selectedTask={selectedSRCTask}
+        setTask={setSRCTask}
+        annotators={annotators}
+        type={"Source"}
+        SERVER_URL={SERVER_URL}
+        projectName={[projectName]}
+        existingDataset={existingSrcDataset}
+        selectedClasses={selectedClasses}
+        setClasses={setClasses}
+      ></Task>
 
-          <Task
-            selectedTask={selectedTGTTask}
-            setTask={setTGTTask}
-            annotators={annotators}
-            type={"Target"}
-            SERVER_URL={SERVER_URL}
-            projectName={[projectName]}
-            existingDataset={existingTgtDataset}
-            selectedClasses={selectedClasses}
-            setClasses={setClasses}
-          ></Task>
+      <Task
+        selectedTask={selectedTGTTask}
+        setTask={setTGTTask}
+        annotators={annotators}
+        type={"Target"}
+        SERVER_URL={SERVER_URL}
+        projectName={[projectName]}
+        existingDataset={existingTgtDataset}
+        selectedClasses={selectedClasses}
+        setClasses={setClasses}
+      ></Task>
 
-          <Task
-            selectedTask={selectedRELTask}
-            setTask={setRELTask}
-            annotators={annotators}
-            type={"Relation"}
-            SERVER_URL={SERVER_URL}
-            projectName={[projectName]}
-            existingDataset={existingTriplesDataset}
-            selectedClasses={selectedClasses}
-            setClasses={setClasses}
-          ></Task>
+      <Task
+        selectedTask={selectedRELTask}
+        setTask={setRELTask}
+        annotators={annotators}
+        type={"Relation"}
+        SERVER_URL={SERVER_URL}
+        projectName={[projectName]}
+        existingDataset={existingTriplesDataset}
+        selectedClasses={selectedClasses}
+        setClasses={setClasses}
+      ></Task>
 
-          <TableRow>
-            {annotateButton()}
-          </TableRow>
-
-        </TableBody>
-      </Table>
+      <Row>
+        <Grid item xs={4}></Grid>
+        {annotateButton()}
+        <Grid item xs={4}></Grid>
+      </Row>
     </Container >
   );
 }

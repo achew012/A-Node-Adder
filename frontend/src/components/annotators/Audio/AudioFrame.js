@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Grid } from "@mui/material";
+import { makeStyles } from '@mui/styles';
 import { Container, Row, Button, Col } from 'react-bootstrap';
-
 import AudioBase from './AudioBase';
 
 
@@ -18,7 +17,8 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
       Height: '98%',
       marginTop: '5px',
       marginLeft: 'auto',
-      marginRight: 'auto'
+      marginRight: 'auto',
+      fontSize: '0.9em'
     },
     row: {
       Height: '99%',
@@ -30,16 +30,34 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
     scrollable: {
       overflow: 'scroll',
       maxHeight: '400px'
-    }
+    },
+    button: {
+      minWidth: '50px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      marginTop: '5px',
+      marginBottom: '5px',
+      padding: '5px',
+      backgroundColor: 'gray',
+      border: 'solid 2px gray',
+      color: 'lightgreen',
+      fontSize: '0.9em',
+    },
+
   });
 
   const classes = useStyles();
+  const [selectedRange, setSelectedRange] = useState([0, 0.1])
   const [time, setTime] = useState(Date.now())
 
   useEffect(() => {
     setMentionsList(mentionsList => ({ ...mentionsList, [tokenIndex]: { value: mentions.value } }));
     getDataSlice(annotatorType, audioList[tokenIndex])
   }, [audioList, tokenIndex]);
+
+  useEffect(() => {
+    // console.log(mentionsList, objURL)
+  }, [mentionsList, objURL]);
 
   function handleNextIndex(e) {
     e.preventDefault();
@@ -65,33 +83,24 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
     }
   }
 
-  // function renderAnnotator() {
-  //   return (
-  //     <AudioBase tokens={audioList[tokenIndex]} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></AudioBase>
-  //   );
-  // }
-
-  function renderWave() {
+  function renderMediaPlayer() {
     return (
-      <AudioBase objURL={objURL}></AudioBase>
+      <AudioBase objURL={objURL} filename={audioList[tokenIndex]} selectedRange={selectedRange} setSelectedRange={setSelectedRange} mentions={mentions} setMentions={setMentions} tokenIndex={tokenIndex} loadMentions={loadMentions}></AudioBase >
     );
   }
-
-  useEffect(() => {
-  }, [mentionsList, objURL]);
 
   return (
     <Container className={classes.main}>
       <Col>
         <Row className={classes.row}>
-          <Grid item xs={4}><Button onClick={handlePrevIndex}>Prev</Button></Grid>
+          <Grid item xs={4}><Button className={classes.button} onClick={handlePrevIndex}>Prev</Button></Grid>
           <Grid item xs={4}>{tokenIndex} - {audioList[tokenIndex]}</Grid>
-          <Grid item xs={2}><Button onClick={handleNextIndex}>Next</Button></Grid>
-          <Grid item xs={2}><Button onClick={handleSaveMentions}>Save to Datasets</Button></Grid>
+          <Grid item xs={2}><Button className={classes.button} onClick={handleNextIndex}>Next</Button></Grid>
+          <Grid item xs={2}><Button className={classes.button} onClick={handleSaveMentions}>Save to Datasets</Button></Grid>
         </Row>
         <Row className={classes.row} style={{ backgroundColor: "lightblue" }}>
           <Grid item xs={12} className={classes.scrollable}>
-            {renderWave()}
+            {renderMediaPlayer()}
           </Grid>
         </Row>
       </Col>

@@ -1,9 +1,7 @@
-import React, {useEffect, useState} from 'react'; 
+import React, { useEffect, useState } from 'react';
+import { TokenAnnotator, TextAnnotator } from 'react-text-annotate'
 
-import {TokenAnnotator, TextAnnotator} from 'react-text-annotate'
-// import TokenAnnotator from '../old/TokenAnnotator'
-
-export default function TextBase({tokens, mentions, setMentions, tokenIndex}) { 
+export default function TextBase({ tokens, mentions, setMentions, tokenIndex }) {
 
   const [state, setState] = useState(mentions);
 
@@ -12,8 +10,8 @@ export default function TextBase({tokens, mentions, setMentions, tokenIndex}) {
   }, [tokenIndex]);
 
   useEffect(() => {
-    setMentions({value: state.value});
-  }, [state.value]);  
+    setMentions({ value: state.value });
+  }, [state.value]);
 
   return (
     <TokenAnnotator
@@ -34,4 +32,4 @@ export default function TextBase({tokens, mentions, setMentions, tokenIndex}) {
       })}
     />
   );
-  }   
+}
