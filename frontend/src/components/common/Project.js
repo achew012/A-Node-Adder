@@ -59,10 +59,10 @@ export default function Project() {
 
   const classes = useStyles();
 
-  // const location = useLocation();
-  // const projectName = location.state.projectname; 
+  const location = useLocation();
+  const projectName = location.state.projectname;
   // const userName = location.state.user;   
-  const projectName = "test";
+  // const projectName = "test";
   const userName = "tester";
 
   // facilitates the dropdown function

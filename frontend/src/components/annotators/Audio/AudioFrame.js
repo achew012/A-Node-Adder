@@ -48,7 +48,6 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
 
   const classes = useStyles();
   const [selectedRange, setSelectedRange] = useState([0, 0.1])
-  const [time, setTime] = useState(Date.now())
 
   useEffect(() => {
     setMentionsList(mentionsList => ({ ...mentionsList, [audioList[tokenIndex]]: { value: mentions.value } }));

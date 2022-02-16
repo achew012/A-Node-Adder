@@ -225,21 +225,24 @@ export default function Annotate({ }) {
     };
 
     axios.post('http://' + SERVER_URL + '/existingAnnotations', { valueHolder }).then(res => {
-      var existingAnnotations = res.data["annotations"];
-
       console.log(res.data)
-
-      switch (operationType) {
-        case "getSource":
-          setSrcMentionsList(existingAnnotations);
-          break;
-        case "getTarget":
-          setTgtMentionsList(existingAnnotations);
-          break;
-        case "getTriple":
-          setAnnotatedTriples([...existingAnnotations]);
-          break;
+      if (res.data.hasOwnProperty("error")) {
+        console.log("no existing annotations found")
+      } else {
+        var existingAnnotations = res.data["annotations"];
+        switch (operationType) {
+          case "getSource":
+            setSrcMentionsList(existingAnnotations);
+            break;
+          case "getTarget":
+            setTgtMentionsList(existingAnnotations);
+            break;
+          case "getTriple":
+            setAnnotatedTriples([...existingAnnotations]);
+            break;
+        }
       }
+
     }
     );
   }
@@ -247,6 +250,7 @@ export default function Annotate({ }) {
   //get source, get target, get relations for initialization
   function getDataSlice(annotatorType, filename) {
     const query = `http://${SERVER_URL}/getDataSlice?annotatortype=${annotatorType}&projectname=${projectName}&filename=${filename}`;
+    console.log(query);
     setObjURL(query);
   }
 

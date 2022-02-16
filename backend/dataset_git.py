@@ -184,7 +184,7 @@ class Annotator_Controller(Dataset_Git):
         self.source_raw_id = self.create_root(
             dataset_name="source_raw",
             dataset_project=self.pull_dataset_project,
-            upload_path="./source_raw",
+            upload_path=self.raw_source_path,
         )
 
     def init_target_raw(self, project_name: str) -> None:
@@ -192,7 +192,7 @@ class Annotator_Controller(Dataset_Git):
         self.target_raw_id = self.create_root(
             dataset_name="target_raw",
             dataset_project=self.pull_dataset_project,
-            upload_path="./target_raw",
+            upload_path=self.raw_target_path,
         )
 
     def get_source_mentions(self) -> Dataset:
