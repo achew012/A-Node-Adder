@@ -136,19 +136,19 @@ export default function AudioBase({ objURL, filename, selectedRange, setSelected
   useEffect(() => {
   }, [mentions, selectedRange]);
 
+  useEffect(() => {
+    setMentions({ value: [] })
+  }, [tokenIndex]);
+
   return (
     <Container style={{ "margin": "5px", "minHeight": "150px", "padding": "5px" }}>
       <Row style={{ "margin": "15px", "padding": "20px" }}>
-        <Grid item xs={6}>
+        <Grid item xs={12}>
           <Row>
             {renderAudioPlayer()}
           </Row>
           <Row>
           </Row>
-        </Grid>
-        <Grid item xs={3}>
-        </Grid>
-        <Grid item xs={3}>
         </Grid>
       </Row>
     </Container >

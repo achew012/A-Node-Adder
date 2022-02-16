@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import RangeSlider from './rangeSlider';
 import { textAlign } from '@mui/system';
 
-export default function AudioView({ objURL, filename, selectedRange, setSelectedRange, mentions, setMentions, loadMentions }) {
+export default function AudioView({ objURL, filename, mentions, setMentions, loadMentions, tokenIndex }) {
 
   const useStyles = makeStyles({
     main: {
@@ -53,26 +53,11 @@ export default function AudioView({ objURL, filename, selectedRange, setSelected
   });
 
   const classes = useStyles();
-  let ref = null;
+  const [state, setState] = useState(mentions);
   const [audio, setAudio] = useState(new Audio())
+
   var stepSize = 0.1
   var segmentEnd;
-
-  function isUnique(entry) {
-    var testArray = mentions.value.map((item) => item.join() == entry.join())
-    console.log(testArray)
-    if (testArray.includes(true)) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  function handleAddMentions() {
-    if (isNaN(selectedRange[1]) == false && isUnique([filename, selectedRange])) {
-      setMentions({ value: [...(mentions.value), [filename, selectedRange]] });
-    }
-  }
 
   audio.addEventListener('timeupdate', function () {
     if (segmentEnd && audio.currentTime >= segmentEnd) {
@@ -95,7 +80,7 @@ export default function AudioView({ objURL, filename, selectedRange, setSelected
             <Button className={classes.button} onClick={() => audio.pause()}>Pause</Button>
           </Grid>
           <Grid item xs={4}>
-            <Button className={classes.button} onClick={() => audioPlay(selectedRange[0], selectedRange[1])}>Play</Button>
+            <Button className={classes.button} onClick={() => audioPlay(0, 1)}>Play</Button>
           </Grid>
         </Row>
       </Container>
@@ -103,20 +88,21 @@ export default function AudioView({ objURL, filename, selectedRange, setSelected
   }
 
   useEffect(() => {
-    // ref.load();
     setAudio(new Audio(objURL));
   }, [objURL]);
 
   useEffect(() => {
-    setSelectedRange([0, audio.duration])
-  }, [audio.duration]);
+    setState(mentions)
+  }, [tokenIndex]);
 
   useEffect(() => {
-  }, [mentions]);
+  }, [state.value]);
 
   return (
     <Container style={{ "margin": "5px", "minHeight": "150px", "padding": "5px" }}>
-
+      {
+        state.value.map((item) => <Row>{item[0]}</Row>)
+      }
     </Container >
   );
 }

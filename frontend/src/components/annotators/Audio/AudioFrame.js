@@ -3,7 +3,7 @@ import { Grid } from "@mui/material";
 import { makeStyles } from '@mui/styles';
 import { Container, Row, Button, Col } from 'react-bootstrap';
 import AudioBase from './AudioBase';
-
+import AudioView from './AudioView'
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
@@ -51,7 +51,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   const [time, setTime] = useState(Date.now())
 
   useEffect(() => {
-    setMentionsList(mentionsList => ({ ...mentionsList, [tokenIndex]: { value: mentions.value } }));
+    setMentionsList(mentionsList => ({ ...mentionsList, [audioList[tokenIndex]]: { value: mentions.value } }));
     getDataSlice(annotatorType, audioList[tokenIndex])
   }, [audioList, tokenIndex]);
 
@@ -70,14 +70,14 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   }
 
   function handleSaveMentions() {
-    var mentionsToSave = { ...mentionsList, [tokenIndex]: { value: mentions.value } }
+    var mentionsToSave = { ...mentionsList, [audioList[tokenIndex]]: { value: mentions.value } }
     saveMentions(annotatorType, mentionsToSave);
   }
 
   // takes from mentionsList(updated every index change) any existing annotations else sets mentions to be empty
   function loadMentions() {
-    if (mentionsList.hasOwnProperty(tokenIndex)) {
-      return (mentionsList[tokenIndex]);
+    if (mentionsList.hasOwnProperty(audioList[tokenIndex])) {
+      return (mentionsList[audioList[tokenIndex]]);
     } else {
       return ({ value: [] });
     }
@@ -85,8 +85,12 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
 
   function renderMediaPlayer() {
     return (
-      <AudioBase objURL={objURL} filename={audioList[tokenIndex]} selectedRange={selectedRange} setSelectedRange={setSelectedRange} mentions={mentions} setMentions={setMentions} tokenIndex={tokenIndex} loadMentions={loadMentions}></AudioBase >
+      <AudioBase objURL={objURL} filename={audioList[tokenIndex]} selectedRange={selectedRange} setSelectedRange={setSelectedRange} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></AudioBase >
     );
+  }
+
+  function renderAnnotatedAudio() {
+    return (<AudioView objURL={objURL} filename={audioList[tokenIndex]} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></AudioView>);
   }
 
   return (
@@ -99,8 +103,11 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
           <Grid item xs={2}><Button className={classes.button} onClick={handleSaveMentions}>Save to Datasets</Button></Grid>
         </Row>
         <Row className={classes.row} style={{ backgroundColor: "lightblue" }}>
-          <Grid item xs={12} className={classes.scrollable}>
+          <Grid item xs={6} className={classes.scrollable}>
             {renderMediaPlayer()}
+          </Grid>
+          <Grid item xs={6} className={classes.scrollable}>
+            {renderAnnotatedAudio()}
           </Grid>
         </Row>
       </Col>
