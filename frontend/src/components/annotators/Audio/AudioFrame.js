@@ -52,7 +52,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   useEffect(() => {
     setMentionsList(mentionsList => ({ ...mentionsList, [audioList[tokenIndex]]: { value: mentions.value } }));
     getDataSlice(annotatorType, audioList[tokenIndex])
-  }, [audioList, tokenIndex]);
+  }, [audioList, tokenIndex, selectedRange]);
 
   useEffect(() => {
     // console.log(mentionsList, objURL)

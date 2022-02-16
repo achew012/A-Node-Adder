@@ -17,9 +17,11 @@ export default function RangeSlider({ maxRange, selectedRange, stepSize, setSele
             if (activeThumb === 0) {
                 const clamped = Math.min(newValue[0], maxRange - minDistance);
                 setValue([clamped, clamped + minDistance]);
+                setSelectedRange(value);
             } else {
                 const clamped = Math.max(newValue[1], minDistance);
                 setValue([clamped - minDistance, clamped]);
+                setSelectedRange(value);
             }
         } else {
             setValue(newValue);
@@ -28,7 +30,7 @@ export default function RangeSlider({ maxRange, selectedRange, stepSize, setSele
     };
 
     useEffect(() => {
-        setValue(selectedRange)
+        setValue(selectedRange);
     }, [selectedRange]);
 
     return (

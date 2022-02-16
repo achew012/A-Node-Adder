@@ -134,7 +134,7 @@ export default function AudioBase({ objURL, filename, selectedRange, setSelected
   }, [objURL]);
 
   useEffect(() => {
-  }, [mentions, selectedRange]);
+  }, [mentions]);
 
   useEffect(() => {
     setMentions({ value: [] })
