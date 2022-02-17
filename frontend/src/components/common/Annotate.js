@@ -387,7 +387,7 @@ export default function Annotate({ }) {
         switch (annotators["Source"]) {
           case "Classes":
             return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
                 {sourceClasses.map((item) =>
                   <MenuItem key={item} value={item}>{item}</MenuItem>
                 )}
@@ -395,7 +395,7 @@ export default function Annotate({ }) {
             );
           case "Audio":
             return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
                 {srcMentions.value.map((item) =>
                   <MenuItem key={item.join(" , ")} value={item}>{item.join(" , ")}</MenuItem>
                 )}
@@ -403,7 +403,7 @@ export default function Annotate({ }) {
             );
           default:
             return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
                 {srcMentions.value.map((item) =>
                   <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
                 )}
