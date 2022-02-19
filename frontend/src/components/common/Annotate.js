@@ -108,6 +108,7 @@ export default function Annotate({ }) {
   const SERVER_URL = process.env.REACT_APP_SERVER_URL
 
   const location = useLocation();
+
   const projectName = location.state.projectname;
   const userName = location.state.user;
 
@@ -258,7 +259,7 @@ export default function Annotate({ }) {
     );
   }
 
-  //get source, get target, get relations for initialization
+  //get media chunk
   function getDataSlice(annotatorType, filename) {
     const query = `http://${SERVER_URL}/getDataSlice?annotatortype=${annotatorType}&projectname=${projectName}&filename=${filename}`;
     console.log(query);
@@ -280,7 +281,22 @@ export default function Annotate({ }) {
             var tokensDataset = res.data["data"];
             var tempArray = tokensList
             var newTokenslist = tempArray.concat(tokensDataset)
-            setTokensList(newTokenslist);
+            switch (operationType) {
+              case "getSource":
+                if (srcAnnotateDirect == true) {
+                  break;
+                } else {
+                  setTokensList(newTokenslist);
+                  break;
+                }
+              case "getTarget":
+                if (tgtAnnotateDirect == true) {
+                  break;
+                } else {
+                  setTokensList(newTokenslist);
+                  break;
+                }
+            }
             break;
 
           case "Audio":
@@ -388,7 +404,7 @@ export default function Annotate({ }) {
         switch (annotators["Source"]) {
           case "Classes":
             return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
                 {sourceClasses.map((item) =>
                   <MenuItem key={item} value={item}>{item}</MenuItem>
                 )}
@@ -396,7 +412,7 @@ export default function Annotate({ }) {
             );
           case "Audio":
             return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
                 {srcMentions.value.map((item) =>
                   <MenuItem key={item.join(" , ")} value={item}>{item.join(" , ")}</MenuItem>
                 )}
@@ -404,7 +420,7 @@ export default function Annotate({ }) {
             );
           default:
             return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
                 {srcMentions.value.map((item) =>
                   <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
                 )}
