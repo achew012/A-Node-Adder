@@ -7,7 +7,7 @@ import AudioView from './AudioView'
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
-export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, getDataSlice, objURL }) {
+export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, getDataSlice, objURL, AnnotateDirect }) {
 
   const useStyles = makeStyles({
     main: {
@@ -83,9 +83,16 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   }
 
   function renderMediaPlayer() {
-    return (
-      <AudioBase objURL={objURL} filename={audioList[tokenIndex]} selectedRange={selectedRange} setSelectedRange={setSelectedRange} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></AudioBase >
-    );
+    if (AnnotateDirect == true) {
+      return (
+        <Container>
+          Audio Recorder Coming Soon...
+        </Container>);
+    } else {
+      return (
+        <AudioBase objURL={objURL} filename={audioList[tokenIndex]} selectedRange={selectedRange} setSelectedRange={setSelectedRange} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></AudioBase >
+      );
+    }
   }
 
   function renderAnnotatedAudio() {

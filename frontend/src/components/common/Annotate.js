@@ -105,13 +105,17 @@ export default function Annotate({ }) {
   });
 
   const classes = useStyles();
-
-  //Initialize this from minio
   const SERVER_URL = process.env.REACT_APP_SERVER_URL
+
   const location = useLocation();
   const projectName = location.state.projectname;
   const userName = location.state.user;
 
+  // Manages the boolean on where user is adding custom fields directly in src or tgt or reading from an existing dataset
+  const srcAnnotateDirect = location.state.srcAnnotateDirect;
+  const tgtAnnotateDirect = location.state.tgtAnnotateDirect;
+
+  //Manages the class and modality configuration saved from project settings
   const annotators = location.state.annotators;
   const definedClasses = location.state.definedClasses;
   const targetClasses = definedClasses["Target"]
@@ -174,6 +178,13 @@ export default function Annotate({ }) {
       return (<Redirect
         to={{
           pathname: "/",
+        }}
+      />);
+    }
+    if (projectName == null || srcAnnotateDirect == null || tgtAnnotateDirect == null || annotators == null || definedClasses == null) {
+      return (<Redirect
+        to={{
+          pathname: "/projectmanager",
         }}
       />);
     }
@@ -316,10 +327,14 @@ export default function Annotate({ }) {
   function renderSourceTask() {
     switch (annotators["Source"]) {
       case "Text":
-        return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={tokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}></TextFrame>
+        return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={tokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}
+          AnnotateDirect={srcAnnotateDirect}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={srcAnnotateDirect}></AudioFrame>
       case "Image":
+        return <Container><InputLabel>Image Annotator Coming Soon...</InputLabel></Container>;
+      case "Custom":
+        return <Container><InputLabel>Custom Annotator</InputLabel></Container>;
       default:
         return <Container><InputLabel>Blank Space</InputLabel></Container>;
     }
@@ -328,10 +343,13 @@ export default function Annotate({ }) {
   function renderTargetTask() {
     switch (annotators["Target"]) {
       case "Text":
-        return <TextFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} tokensList={tokensList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"}></TextFrame>
+        return <TextFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} tokensList={tokensList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} AnnotateDirect={tgtAnnotateDirect}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={tgtAnnotateDirect}></AudioFrame>
       case "Image":
+        return <Container><InputLabel>Image Annotator Coming Soon...</InputLabel></Container>;
+      case "Custom":
+        return <Container><InputLabel>Custom Annotator</InputLabel></Container>;
       default:
         return <Container><InputLabel>Blank Space</InputLabel></Container>;
     }
@@ -366,23 +384,6 @@ export default function Annotate({ }) {
               </Select>
             );
         }
-      // if (annotators["Target"] == "Classes") {
-      //   return (
-      //     <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
-      //       {targetClasses.map((item) =>
-      //         <MenuItem key={item} value={item}>{item}</MenuItem>
-      //       )}
-      //     </Select>
-      //   );
-      // } else {
-      //   return (
-      //     <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
-      //       {tgtMentions.value.map((item) =>
-      //         <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
-      //       )}
-      //     </Select>
-      //   );
-      // }
       case "Source":
         switch (annotators["Source"]) {
           case "Classes":
@@ -410,24 +411,6 @@ export default function Annotate({ }) {
               </Select>
             );
         }
-
-      // if (annotators["Source"] == "Classes") {
-      //   return (
-      //     <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleSrcSelection}>
-      //       {sourceClasses.map((item) =>
-      //         <MenuItem key={item} value={item}>{item}</MenuItem>
-      //       )}
-      //     </Select>
-      //   );
-      // } else {
-      //   return (
-      //     <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleSrcSelection}>
-      //       {srcMentions.value.map((item) =>
-      //         <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
-      //       )}
-      //     </Select>
-      //   );
-      // }
       case "Relation":
         return (
           <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleRelSelection}>
@@ -468,6 +451,8 @@ export default function Annotate({ }) {
 
   return (
     <Container style={{ maxWidth: '80%', marginBottom: '25px', padding: '30px' }}>
+      {checkUser()}
+      <Row style={{ justifyContent: "center", textAlign: "center" }}><strong>Project Name: {projectName}</strong></Row>
       {/* COMPONENT LEVEL ANNOTATIONS */}
       <Row>
         <Grid item xs={8}>
@@ -534,7 +519,7 @@ export default function Annotate({ }) {
           </Row>
         </Col>
       </Row>
-    </Container>
+    </Container >
   );
 }
 

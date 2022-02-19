@@ -30,24 +30,6 @@ export default function Project() {
       fontSize: '1.5em',
     },
 
-    // tableHeader: {
-    //   // border: 'solid 1px black',
-    //   minHeight: 100,
-    //   margin: '10px',
-    //   fontSize: '1em',
-    //   padding: '20px',
-    //   overflowWrap: 'break-word',
-    // },
-
-    // tableCell: {
-    //   // border: 'solid 1px black',
-    //   minHeight: 100,
-    //   margin: '10px',
-    //   fontSize: '1em',
-    //   padding: '20px',
-    //   overflowWrap: 'break-word',
-    // },
-
     button: {
       margin: '5px',
       padding: '5px',
@@ -77,6 +59,10 @@ export default function Project() {
   const [existingTgtDataset, setTgtDatasetDisplay] = useState(null);
   const [existingSrcDataset, setSrcDatasetDisplay] = useState(null);
   const [existingTriplesDataset, setTriplesDatasetDisplay] = useState(null);
+
+  const [srcAnnotateDirect, setSrcAnnotateDirect] = useState(false);
+  const [tgtAnnotateDirect, setTgtAnnotateDirect] = useState(false);
+
   const [time, setTime] = useState(Date.now());
 
   function checkUser() {
@@ -84,6 +70,13 @@ export default function Project() {
       return (<Redirect
         to={{
           pathname: "/",
+        }}
+      />);
+    }
+    if (projectName == null) {
+      return (<Redirect
+        to={{
+          pathname: "/projectmanager",
         }}
       />);
     }
@@ -95,11 +88,15 @@ export default function Project() {
     console.log("Caching Classes...")
     console.log(annotators);
     console.log(selectedClasses);
+    console.log(srcAnnotateDirect);
+    console.log(tgtAnnotateDirect);
 
     const valueHolder = {
       annotators: annotators,
       classes: selectedClasses,
       projectname: projectName,
+      srcAnnotateDirect: srcAnnotateDirect,
+      tgtAnnotateDirect: tgtAnnotateDirect,
     };
 
     axios.post('http://' + SERVER_URL + '/cacheClasses', { valueHolder }).then(res => {
@@ -118,6 +115,8 @@ export default function Project() {
     axios.post('http://' + SERVER_URL + '/getClasses', { valueHolder }).then(res => {
       var response = res['data']
       console.log("Retrieved Existing Classes", response)
+      setSrcAnnotateDirect(response["src_annotate_direct"]);
+      setTgtAnnotateDirect(response["tgt_annotate_direct"]);
       setClasses(response["classes"]);
       setAnnotators(response["annotators"]);
     });
@@ -166,7 +165,7 @@ export default function Project() {
         <Grid item xs={4}>
           <Link to={{ pathname: "/projects", state: { projectname: projectName, user: userName } }}><Button className={classes.button}>Back</Button></Link>
           <Button className={classes.button} onClick={cacheClasses}> Save Settings </Button>
-          <Link to={{ pathname: "/annotate", state: { projectname: projectName, user: userName, annotators: annotators, definedClasses: selectedClasses } }}><Button className={classes.button}>Annotate / Edit</Button></Link>
+          <Link to={{ pathname: "/annotate", state: { projectname: projectName, user: userName, annotators: annotators, definedClasses: selectedClasses, srcAnnotateDirect: srcAnnotateDirect, tgtAnnotateDirect: tgtAnnotateDirect } }}><Button className={classes.button}>Annotate / Edit</Button></Link>
           {/* {downloadAnnotations()} */}
         </Grid>
       );
@@ -204,6 +203,8 @@ export default function Project() {
         existingDataset={existingSrcDataset}
         selectedClasses={selectedClasses}
         setClasses={setClasses}
+        AnnotateDirect={srcAnnotateDirect}
+        setAnnotateDirect={setSrcAnnotateDirect}
       ></Task>
 
       <Task
@@ -216,6 +217,8 @@ export default function Project() {
         existingDataset={existingTgtDataset}
         selectedClasses={selectedClasses}
         setClasses={setClasses}
+        AnnotateDirect={tgtAnnotateDirect}
+        setAnnotateDirect={setTgtAnnotateDirect}
       ></Task>
 
       <Task
@@ -228,6 +231,8 @@ export default function Project() {
         existingDataset={existingTriplesDataset}
         selectedClasses={selectedClasses}
         setClasses={setClasses}
+        AnnotateDirect={null}
+        setAnnotateDirect={null}
       ></Task>
 
       <Row>

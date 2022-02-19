@@ -447,9 +447,13 @@ def cache_classes():
         project_name = package["projectname"]
         classes = package["classes"]
         annotators = package["annotators"]
+        src_annotate_direct = package["srcAnnotateDirect"]
+        tgt_annotate_direct = package["tgtAnnotateDirect"]
 
         put_json(project_name, "classes", classes)
         put_json(project_name, "annotators", annotators)
+        put_json(project_name, "src_annotate_direct", src_annotate_direct)
+        put_json(project_name, "tgt_annotate_direct", tgt_annotate_direct)
 
         response = jsonify({})
 
@@ -472,12 +476,20 @@ def get_classes():
 
         annotators = get_json(project_name, "annotators")
         classes = get_json(project_name, "classes")
+        src_annotate_direct = get_json(project_name, "src_annotate_direct")
+        tgt_annotate_direct = get_json(project_name, "tgt_annotate_direct")
+
         if annotators is None:
             annotators = {"Source": "", "Target": "", "Relation": []}
         if classes is None:
             classes = {"Source": [], "Target": [], "Relation": []}
+        if src_annotate_direct is None:
+            src_annotate_direct = False
+        if tgt_annotate_direct is None:
+            tgt_annotate_direct = False
 
-        response = jsonify({"annotators": annotators, "classes": classes})
+        response = jsonify({"annotators": annotators, "classes": classes,
+                           "src_annotate_direct": src_annotate_direct, "tgt_annotate_direct": tgt_annotate_direct})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()

@@ -8,7 +8,7 @@ import TextBase from './TextBase';
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
-export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType }) {
+export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, AnnotateDirect }) {
 
   const useStyles = makeStyles({
     main: {
@@ -84,9 +84,16 @@ export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, menti
   }
 
   function renderAnnotator() {
-    return (
-      <TextBase tokens={tokensList[tokenIndex]} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></TextBase>
-    );
+    if (AnnotateDirect == true) {
+      return (
+        <Container>
+          Text Input Coming Soon...
+        </Container>);
+    } else {
+      return (
+        <TextBase tokens={tokensList[tokenIndex]} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></TextBase>
+      );
+    }
   }
 
   useEffect(() => {
