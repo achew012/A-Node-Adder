@@ -142,7 +142,9 @@ export default function Annotate({ }) {
   const [tgtMentionsList, setTgtMentionsList] = useState({});
 
   // holds the path or tokens of the base data in each component
-  const [tokensList, setTokensList] = useState([['Placeholder Document']]);
+  const [srcTokensList, setSrcTokensList] = useState([['Placeholder Document']]);
+  const [tgtTokensList, setTgtTokensList] = useState([['Placeholder Document']]);
+
   const [mediaList, setMediaList] = useState([['Placeholder Media']]);
   const [objURL, setObjURL] = useState('')
 
@@ -279,21 +281,23 @@ export default function Annotate({ }) {
         switch (modality) {
           case "Text":
             var tokensDataset = res.data["data"];
-            var tempArray = tokensList
-            var newTokenslist = tempArray.concat(tokensDataset)
             switch (operationType) {
               case "getSource":
+                var tempArray = srcTokensList
+                var newTokenslist = tempArray.concat(tokensDataset)
                 if (srcAnnotateDirect == true) {
                   break;
                 } else {
-                  setTokensList(newTokenslist);
+                  setSrcTokensList(newTokenslist);
                   break;
                 }
               case "getTarget":
+                var tempArray = tgtTokensList
+                var newTokenslist = tempArray.concat(tokensDataset)
                 if (tgtAnnotateDirect == true) {
                   break;
                 } else {
-                  setTokensList(newTokenslist);
+                  setTgtTokensList(newTokenslist);
                   break;
                 }
             }
@@ -301,7 +305,25 @@ export default function Annotate({ }) {
 
           case "Audio":
             var audioDataset = res.data["data"];
-            setMediaList(audioDataset)
+
+            switch (operationType) {
+              case "getSource":
+                if (srcAnnotateDirect == true) {
+                  break;
+                } else {
+                  setMediaList(audioDataset)
+                  break;
+                }
+              case "getTarget":
+                var tempArray = tgtTokensList
+                var newTokenslist = tempArray.concat(tokensDataset)
+                if (tgtAnnotateDirect == true) {
+                  break;
+                } else {
+                  setMediaList(audioDataset)
+                  break;
+                }
+            }
             break;
         }
       }
@@ -343,7 +365,7 @@ export default function Annotate({ }) {
   function renderSourceTask() {
     switch (annotators["Source"]) {
       case "Text":
-        return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={tokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}
+        return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={srcTokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}
           AnnotateDirect={srcAnnotateDirect}></TextFrame>
       case "Audio":
         return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={srcAnnotateDirect}></AudioFrame>
@@ -359,7 +381,7 @@ export default function Annotate({ }) {
   function renderTargetTask() {
     switch (annotators["Target"]) {
       case "Text":
-        return <TextFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} tokensList={tokensList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} AnnotateDirect={tgtAnnotateDirect}></TextFrame>
+        return <TextFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} tokensList={tgtTokensList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} AnnotateDirect={tgtAnnotateDirect}></TextFrame>
       case "Audio":
         return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={tgtAnnotateDirect}></AudioFrame>
       case "Image":

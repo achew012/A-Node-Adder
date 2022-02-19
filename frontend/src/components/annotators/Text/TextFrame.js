@@ -77,7 +77,11 @@ export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, menti
   // takes from mentionsList(updated every index change) any existing annotations else sets mentions to be empty
   function loadMentions() {
     if (mentionsList.hasOwnProperty(tokenIndex)) {
-      return (mentionsList[tokenIndex]);
+      if (AnnotateDirect == true) {
+        return (mentionsList[0]);
+      } else {
+        return (mentionsList[tokenIndex]);
+      }
     } else {
       return ({ value: [] });
     }

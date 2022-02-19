@@ -164,20 +164,38 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
         {displayDataset()}
       </Grid>);
     } else {
-      return (
-        <Grid item xs={8}>
-          <Row style={{ marginLeft: "auto", marginRight: "auto" }}>
-            <Grid item xs={6} className={classes.Grid}>
-              <input type="file" onChange={onFileChange} accept=".zip,.rar,.7zip, audio/*" />
-              {fileData()}
-              <Button className={classes.button} onClick={onZipFileUpload}>Upload Audio Zip</Button>
+      switch (selectedTask) {
+        case "Audio":
+          return (
+            <Grid item xs={8}>
+              <Row style={{ marginLeft: "auto", marginRight: "auto" }}>
+                <Grid item xs={6} className={classes.Grid}>
+                  <input type="file" onChange={onFileChange} accept=".zip,.rar,.7zip, audio/*" />
+                  {fileData()}
+                  <Button className={classes.button} onClick={onZipFileUpload}>Upload Audio Zip</Button>
+                </Grid>
+                <Grid item xs={6} className={classes.Grid}>
+                  {displayDataset()}
+                </Grid>
+              </Row >
             </Grid>
-            <Grid item xs={6} className={classes.Grid}>
-              {displayDataset()}
+          );
+        default:
+          return (
+            <Grid item xs={8} className={classes.Grid}>
+              <Row>
+                <Grid item xs={6} className={classes.Grid}>
+                  <input type="file" onChange={onFileChange} />
+                  {fileData()}
+                  <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
+                </Grid>
+                <Grid item xs={4} className={classes.Grid}>
+                  {displayDataset()}
+                </Grid>
+              </Row>
             </Grid>
-          </Row >
-        </Grid>
-      );
+          );
+      }
     }
   }
 
@@ -189,27 +207,6 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
             <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
           </Grid>
         );
-      case "Audio":
-        return (
-          <Grid item xs={8} className={classes.Grid}>
-            <Row>
-              <Grid item xs={3} className={classes.Grid}>
-                <Row style={{ marginLeft: "auto", marginRight: "auto" }}>
-                  <Checkbox checked={AnnotateDirect} onChange={handleDirectAnnotation} />
-                </Row>
-                <Row><label>Annotate Directly</label></Row>
-                <Row className={classes.warning}>(Warning: will overwrite any uploaded raw dataset)</Row>
-              </Grid>
-              {displayUploadingContainer()}
-            </Row >
-          </Grid >
-        );
-      // case "Custom":
-      //   return (
-      //     <Grid item xs={8} className={classes.Grid}>
-      //       Add Fields Directly to the Annotator
-      //     </Grid>
-      //   );
       default:
         return (
           <Grid item xs={8} className={classes.Grid}>
