@@ -384,21 +384,41 @@ export default function Annotate({ }) {
               </Select>
             );
           case "Audio":
-            return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
-                {tgtMentions.value.map((item) =>
-                  <MenuItem key={item.join(" , ")} value={item}>{item.join(" , ")}</MenuItem>
-                )}
-              </Select>
-            );
+            if (tgtAnnotateDirect == true) {
+              return (
+                <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                  {targetClasses.map((item) =>
+                    <MenuItem key={item} value={item}>{item}</MenuItem>
+                  )}
+                </Select>
+              );
+            } else {
+              return (
+                <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                  {tgtMentions.value.map((item) =>
+                    <MenuItem key={item.join(" , ")} value={item}>{item.join(" , ")}</MenuItem>
+                  )}
+                </Select>
+              );
+            }
           default:
-            return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
-                {tgtMentions.value.map((item) =>
-                  <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
-                )}
-              </Select>
-            );
+            if (tgtAnnotateDirect == true) {
+              return (
+                <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                  {tgtMentions.value.map((item) =>
+                    <MenuItem key={item} value={item}>{item}</MenuItem>
+                  )}
+                </Select>
+              );
+            } else {
+              return (
+                <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleTgtSelection}>
+                  {tgtMentions.value.map((item) =>
+                    <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
+                  )}
+                </Select>
+              );
+            }
         }
       case "Source":
         switch (annotators["Source"]) {
@@ -419,13 +439,23 @@ export default function Annotate({ }) {
               </Select>
             );
           default:
-            return (
-              <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
-                {srcMentions.value.map((item) =>
-                  <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
-                )}
-              </Select>
-            );
+            if (srcAnnotateDirect == true) {
+              return (
+                <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
+                  {srcMentions.value.map((item) =>
+                    <MenuItem key={item} value={item}>{item}</MenuItem>
+                  )}
+                </Select>
+              );
+            } else {
+              return (
+                <Select value={"Empty"} style={{ minWidth: "200px" }} onChange={handleSrcSelection}>
+                  {srcMentions.value.map((item) =>
+                    <MenuItem key={item.tokens.join()} value={item}>{item.tokens.join()}</MenuItem>
+                  )}
+                </Select>
+              );
+            }
         }
       case "Relation":
         return (

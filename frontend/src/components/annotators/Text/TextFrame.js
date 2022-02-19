@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Container, Row, Button, Col } from 'react-bootstrap';
-
 import TextBase from './TextBase';
-
+import TextCustom from './TextCustom';
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
@@ -15,6 +14,7 @@ export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, menti
       backgroundColor: "lightgray",
       padding: '5px',
       minWidth: '95%',
+      minHeight: '200px',
       Height: '98%',
       marginTop: '5px',
       marginLeft: 'auto',
@@ -86,9 +86,8 @@ export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, menti
   function renderAnnotator() {
     if (AnnotateDirect == true) {
       return (
-        <Container>
-          Text Input Coming Soon...
-        </Container>);
+        <TextCustom mentions={loadMentions()} setMentions={setMentions} mentionsList={mentionsList} setMentionsList={setMentionsList} ></TextCustom >
+      );
     } else {
       return (
         <TextBase tokens={tokensList[tokenIndex]} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></TextBase>
@@ -97,6 +96,7 @@ export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, menti
   }
 
   useEffect(() => {
+    console.log(mentionsList)
   }, [mentionsList]);
 
   return (
