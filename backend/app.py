@@ -145,11 +145,9 @@ def login():
         operation_type = package["type"]
         user = package["user"]
         hashstring = package["hash"]
-        print(hashstring)
 
         if operation_type == "login":
             registered_hash = get_user_hash(user, users_dict)
-            print(hashstring)
             if True:
                 result = "login success"
             else:
@@ -472,8 +470,6 @@ def get_classes():
         package = json.loads(request.data.decode())["valueHolder"]
         project_name = package["projectname"]
 
-        print(project_name)
-
         annotators = get_json(project_name, "annotators")
         classes = get_json(project_name, "classes")
         src_annotate_direct = get_json(project_name, "src_annotate_direct")
@@ -547,8 +543,22 @@ def get_data_slice():
             {"error": traceback.format_exception(exc_type, exc_value, exc_traceback)})
         return response
 
-    # response.headers.add("Access-Control-Allow-Origin", "*")
-    # return response
+
+@app.route("/addMedia", methods=["POST"])
+def add_media():
+    try:
+        package = json.loads(request.data.decode())["valueHolder"]
+        project_name = package["projectname"]
+
+        response = jsonify({})
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
+
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 # app.run("0.0.0.0", debug=False)

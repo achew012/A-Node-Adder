@@ -4,6 +4,7 @@ import { makeStyles } from '@mui/styles';
 import { Container, Row, Button, Col } from 'react-bootstrap';
 import AudioBase from './AudioBase';
 import AudioView from './AudioView'
+import AudioCustom from './AudioCustom';
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
@@ -21,8 +22,8 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
       fontSize: '0.9em'
     },
     row: {
-      Height: '99%',
-      maxWidth: '99%',
+      Height: '95%',
+      maxWidth: '95%',
       marginTop: '10px',
       marginLeft: 'auto',
       marginRight: 'auto'
@@ -86,7 +87,8 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
     if (AnnotateDirect == true) {
       return (
         <Container>
-          Audio Recorder Coming Soon...
+          {/* Audio Recorder Coming Soon... */}
+          <AudioCustom></AudioCustom>
         </Container>);
     } else {
       return (
