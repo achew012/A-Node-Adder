@@ -478,7 +478,6 @@ export default function Annotate({ }) {
                 </Select>
               );
             }
-        }
       case "Relation":
         return (
           <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleRelSelection}>
