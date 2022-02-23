@@ -249,8 +249,6 @@ def projectlist():
                 project_name, "classes", {
                     "Source": [], "Target": [], "Relation": []}
             )
-            put_json(project_name, "src_annotate_direct", False)
-            put_json(project_name, "tgt_annotate_direct", False)
 
         elif operation_type == "delete":
             delete_object(project_name, "", "", recursive=True)

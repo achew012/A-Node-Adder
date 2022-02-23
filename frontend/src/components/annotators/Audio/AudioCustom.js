@@ -4,7 +4,7 @@ import { Grid } from "@mui/material";
 import { makeStyles } from '@mui/styles';
 import AudioReactRecorder, { RecordState } from 'audio-react-recorder'
 
-export default function AudioCustom() {
+export default function AudioCustom({ }) {
 
   const useStyles = makeStyles({
     main: {
