@@ -9,15 +9,15 @@ import {
 
 import { makeStyles } from '@mui/styles';
 import Grid from '@mui/material/Grid';
-// import TableContainer from '@mui/material/core/TableContainer';
-import TableRow from '@mui/material/TableRow';
+import { Checkbox } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Select from '@mui/material/Select';
 import ClassManager from './ClassManager';
 
-export default function Task({ selectedTask, setTask, annotators, type, projectName, existingDataset, selectedClasses, setClasses }) {
+export default function Task({ selectedTask, setTask, annotators, type, projectName, existingDataset, selectedClasses, setClasses, AnnotateDirect, setAnnotateDirect }) {
 
   const useStyles = makeStyles({
     cont: {
@@ -39,7 +39,7 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
     Grid: {
       // border: 'solid 1px black',
       minHeight: '100px',
-      width: '33%',
+      width: '35%',
       margin: '5px',
       fontSize: '0.7em',
       padding: '5px',
@@ -54,11 +54,24 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
       border: 'solid 2px gray',
       color: 'black',
     },
+    warning: {
+      textAlign: "center",
+      fontSize: "0.7em",
+      color: "red"
+    },
+    checkboxlabel: {
+      fontSize: "0.6em"
+    }
   });
 
   const SERVER_URL = process.env.REACT_APP_SERVER_URL
   const classes = useStyles();
   const [selectedFile, setFile] = useState(['default']);
+  const [checkboxState, setCheckBoxState] = useState(false);
+
+  function handleDirectAnnotation(e) {
+    setCheckBoxState(!checkboxState);
+  }
 
   function onFileChange(event) {
     console.log(event)
@@ -140,10 +153,51 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
       );
     } else {
       return (
-        <p>Choose file before pressing the upload button</p>
+        <p className={classes.warning}>Choose file before pressing the upload button</p>
       );
     }
   };
+
+  function displayUploadingContainer() {
+    if (checkboxState == true) {
+      return (<Grid item xs={6} className={classes.Grid}>
+        {displayDataset()}
+      </Grid>);
+    } else {
+      switch (selectedTask) {
+        case "Audio":
+          return (
+            <Grid item xs={8}>
+              <Row style={{ marginLeft: "auto", marginRight: "auto" }}>
+                <Grid item xs={6} className={classes.Grid}>
+                  <input type="file" onChange={onFileChange} accept=".zip,.rar,.7zip, audio/*" />
+                  {fileData()}
+                  <Button className={classes.button} onClick={onZipFileUpload}>Upload Audio Zip</Button>
+                </Grid>
+                <Grid item xs={6} className={classes.Grid}>
+                  {displayDataset()}
+                </Grid>
+              </Row >
+            </Grid>
+          );
+        default:
+          return (
+            <Grid item xs={8} className={classes.Grid}>
+              <Row>
+                <Grid item xs={6} className={classes.Grid}>
+                  <input type="file" onChange={onFileChange} />
+                  {fileData()}
+                  <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
+                </Grid>
+                <Grid item xs={4} className={classes.Grid}>
+                  {displayDataset()}
+                </Grid>
+              </Row>
+            </Grid>
+          );
+      }
+    }
+  }
 
   function displayTask() {
     switch (selectedTask) {
@@ -153,33 +207,18 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
             <ClassManager selectedClasses={selectedClasses} setClasses={setClasses} type={type}></ClassManager>
           </Grid>
         );
-      case "Audio":
-        return (
-          <Grid item xs={8} className={classes.Grid}>
-            <Row>
-              <Grid item xs={6} className={classes.Grid}>
-                <input type="file" onChange={onFileChange} accept=".zip,.rar,.7zip, audio/*" />
-                {fileData()}
-                <Button className={classes.button} onClick={onZipFileUpload}>Upload Audio Zip</Button>
-              </Grid>
-              <Grid item xs={4} className={classes.Grid}>
-                {displayDataset()}
-              </Grid>
-            </Row>
-          </Grid>
-        );
       default:
         return (
           <Grid item xs={8} className={classes.Grid}>
             <Row>
-              <Grid item xs={6} className={classes.Grid}>
-                <input type="file" onChange={onFileChange} />
-                {fileData()}
-                <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
+              <Grid item xs={3} className={classes.Grid}>
+                <Row style={{ marginLeft: "auto", marginRight: "auto" }}>
+                  <Checkbox checked={AnnotateDirect} onChange={handleDirectAnnotation} />
+                </Row>
+                <Row><label>Annotate Directly</label></Row>
+                <Row className={classes.warning}>(Warning: will overwrite any uploaded raw dataset)</Row>
               </Grid>
-              <Grid item xs={4} className={classes.Grid}>
-                {displayDataset()}
-              </Grid>
+              {displayUploadingContainer()}
             </Row>
           </Grid>
         );
@@ -223,6 +262,7 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
               <MenuItem value={'Text'}>Text</MenuItem>
               <MenuItem value={'Audio'}>Audio</MenuItem>
               <MenuItem value={'Images'}>Images</MenuItem>
+              {/* <MenuItem value={'Custom'}>Custom</MenuItem> */}
             </Select>
           </FormControl>
         </Grid>
@@ -241,6 +281,12 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
       );
     }
   }
+
+  useEffect(() => {
+    if (AnnotateDirect != null) {
+      setAnnotateDirect(checkboxState);
+    }
+  }, [checkboxState]);
 
   return (
     <Container className={classes.cont}>

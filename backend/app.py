@@ -145,11 +145,9 @@ def login():
         operation_type = package["type"]
         user = package["user"]
         hashstring = package["hash"]
-        print(hashstring)
 
         if operation_type == "login":
             registered_hash = get_user_hash(user, users_dict)
-            print(hashstring)
             if True:
                 result = "login success"
             else:
@@ -251,6 +249,8 @@ def projectlist():
                 project_name, "classes", {
                     "Source": [], "Target": [], "Relation": []}
             )
+            put_json(project_name, "src_annotate_direct", False)
+            put_json(project_name, "tgt_annotate_direct", False)
 
         elif operation_type == "delete":
             delete_object(project_name, "", "", recursive=True)
@@ -447,9 +447,13 @@ def cache_classes():
         project_name = package["projectname"]
         classes = package["classes"]
         annotators = package["annotators"]
+        src_annotate_direct = package["srcAnnotateDirect"]
+        tgt_annotate_direct = package["tgtAnnotateDirect"]
 
         put_json(project_name, "classes", classes)
         put_json(project_name, "annotators", annotators)
+        put_json(project_name, "src_annotate_direct", src_annotate_direct)
+        put_json(project_name, "tgt_annotate_direct", tgt_annotate_direct)
 
         response = jsonify({})
 
@@ -468,16 +472,22 @@ def get_classes():
         package = json.loads(request.data.decode())["valueHolder"]
         project_name = package["projectname"]
 
-        print(project_name)
-
         annotators = get_json(project_name, "annotators")
         classes = get_json(project_name, "classes")
+        src_annotate_direct = get_json(project_name, "src_annotate_direct")
+        tgt_annotate_direct = get_json(project_name, "tgt_annotate_direct")
+
         if annotators is None:
             annotators = {"Source": "", "Target": "", "Relation": []}
         if classes is None:
             classes = {"Source": [], "Target": [], "Relation": []}
+        if src_annotate_direct is None:
+            src_annotate_direct = False
+        if tgt_annotate_direct is None:
+            tgt_annotate_direct = False
 
-        response = jsonify({"annotators": annotators, "classes": classes})
+        response = jsonify({"annotators": annotators, "classes": classes,
+                           "src_annotate_direct": src_annotate_direct, "tgt_annotate_direct": tgt_annotate_direct})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -535,8 +545,22 @@ def get_data_slice():
             {"error": traceback.format_exception(exc_type, exc_value, exc_traceback)})
         return response
 
-    # response.headers.add("Access-Control-Allow-Origin", "*")
-    # return response
+
+@app.route("/addMedia", methods=["POST"])
+def add_media():
+    try:
+        package = json.loads(request.data.decode())["valueHolder"]
+        project_name = package["projectname"]
+
+        response = jsonify({})
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        response = jsonify({"error": traceback.format_exception(
+            exc_type, exc_value, exc_traceback)})
+
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 # app.run("0.0.0.0", debug=False)

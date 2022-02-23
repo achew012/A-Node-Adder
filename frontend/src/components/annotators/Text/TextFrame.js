@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Container, Row, Button, Col } from 'react-bootstrap';
-
 import TextBase from './TextBase';
-
+import TextCustom from './TextCustom';
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
-export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType }) {
+export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, AnnotateDirect }) {
 
   const useStyles = makeStyles({
     main: {
       backgroundColor: "lightgray",
       padding: '5px',
       minWidth: '95%',
+      minHeight: '200px',
       Height: '98%',
       marginTop: '5px',
       marginLeft: 'auto',
@@ -77,19 +77,30 @@ export default function TextFrame({ tokenIndex, setTokenIndex, tokensList, menti
   // takes from mentionsList(updated every index change) any existing annotations else sets mentions to be empty
   function loadMentions() {
     if (mentionsList.hasOwnProperty(tokenIndex)) {
-      return (mentionsList[tokenIndex]);
+      if (AnnotateDirect == true) {
+        return (mentionsList[0]);
+      } else {
+        return (mentionsList[tokenIndex]);
+      }
     } else {
       return ({ value: [] });
     }
   }
 
   function renderAnnotator() {
-    return (
-      <TextBase tokens={tokensList[tokenIndex]} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></TextBase>
-    );
+    if (AnnotateDirect == true) {
+      return (
+        <TextCustom mentions={loadMentions()} setMentions={setMentions} mentionsList={mentionsList} setMentionsList={setMentionsList} ></TextCustom >
+      );
+    } else {
+      return (
+        <TextBase tokens={tokensList[tokenIndex]} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></TextBase>
+      );
+    }
   }
 
   useEffect(() => {
+    console.log(mentionsList)
   }, [mentionsList]);
 
   return (
