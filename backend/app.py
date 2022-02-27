@@ -1,11 +1,11 @@
-from fileinput import filename
+# from fileinput import filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, jsonify, flash, url_for, send_from_directory, send_file
 from flask_cors import CORS, cross_origin
-import threading
-import queue
-import webbrowser
-import docx
+# import threading
+# import queue
+# import webbrowser
+# import docx
 
 from werkzeug.utils import redirect, secure_filename
 import mysql.connector
@@ -21,6 +21,7 @@ import traceback
 import zipfile
 
 from dataset_git import Annotator_Controller, load_jsonl, to_jsonl
+
 
 access_key = os.environ["AWS_ACCESS_KEY_ID"]
 secret_key = os.environ["AWS_SECRET_ACCESS_KEY"]
@@ -547,10 +548,30 @@ def get_data_slice():
 @app.route("/addMedia", methods=["POST"])
 def add_media():
     try:
-        package = json.loads(request.data.decode())["valueHolder"]
-        project_name = package["projectname"]
+        # package = json.loads(request.data.decode())["valueHolder"]
+        # project_name = package["projectname"]
+        # annotator_type = package["type"]
+        # file_name = package["filename"]
+        # blob = package["blob"]
 
-        response = jsonify({})
+        path = list(request.files.keys())[-1]
+        raw_string = path.split("///")
+        project_name = raw_string[0]
+        annotator_type = raw_string[1]
+        filename = raw_string[2]
+        blob = request.files[path]
+
+        data_controller = Annotator_Controller(project_name)
+        rate = 22050
+
+        if annotator_type == "Target":
+            blob.save(os.path.join(
+                data_controller.raw_target_path, filename+".wav"))
+        elif annotator_type == "Source":
+            blob.save(os.path.join(
+                data_controller.raw_source_path, filename+".wav"))
+
+        response = jsonify({"data": filename})
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()

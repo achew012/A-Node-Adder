@@ -4,7 +4,7 @@ import { Grid } from "@mui/material";
 import { makeStyles } from '@mui/styles';
 import AudioReactRecorder, { RecordState } from 'audio-react-recorder'
 
-export default function AudioCustom({ }) {
+export default function AudioCustom({ fileName, annotatorType, uploadClip, mentions, setMentions, mentionsList, setMentionsList }) {
 
   const useStyles = makeStyles({
     main: {
@@ -72,8 +72,9 @@ export default function AudioCustom({ }) {
     stream.play()
   }
 
+
   function addRecording() {
-    console.log(audio)
+    uploadClip(fileName, audio.blob, annotatorType)
     setAudio(null)
   }
 
@@ -94,6 +95,10 @@ export default function AudioCustom({ }) {
   useEffect(() => {
     console.log('audioData', audio)
   }, [audio]);
+
+  useEffect(() => {
+    setMentionsList(mentionsList => ({ ...mentionsList, [0]: mentions }));
+  }, [mentions]);
 
   return (
     <Container>

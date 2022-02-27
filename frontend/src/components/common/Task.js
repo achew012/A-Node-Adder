@@ -182,14 +182,14 @@ export default function Task({ selectedTask, setTask, annotators, type, projectN
           );
         default:
           return (
-            <Grid item xs={8} className={classes.Grid}>
-              <Row>
+            <Grid item xs={8}>
+              <Row style={{ marginLeft: "auto", marginRight: "auto" }}>
                 <Grid item xs={6} className={classes.Grid}>
                   <input type="file" onChange={onFileChange} />
                   {fileData()}
                   <Button className={classes.button} onClick={onFileUpload}>Upload</Button>
                 </Grid>
-                <Grid item xs={4} className={classes.Grid}>
+                <Grid item xs={6} className={classes.Grid}>
                   {displayDataset()}
                 </Grid>
               </Row>

@@ -40,3 +40,4 @@ gunicorn
 clearml
 boto3
 ipdb
+wavio

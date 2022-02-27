@@ -212,6 +212,30 @@ export default function Annotate({ }) {
     });
   };
 
+  function uploadClip(fileName, fileObject, annotatorType) {
+
+    var formData = new FormData();
+
+    formData.append(
+      projectName + '///' + annotatorType + '///' + fileName,
+      fileObject,
+      fileName
+    );
+
+    // Request made to the backend api 
+    axios.post('http://' + SERVER_URL + '/addMedia', formData, { headers: { 'content-type': 'multipart/form-data' } }).then(res => {
+      var result = res.data
+      switch (annotatorType) {
+        case "Source":
+          setSrcMentions({ value: [...srcMentions.value, result] })
+          break;
+        case "Target":
+          setTgtMentions({ value: [...tgtMentions.value, result] })
+          break;
+      }
+    });
+  }
+
   function saveMentions(annotatorType, mentionsList) {
     console.log("Uploading mentions...")
     // Create an object of formData 
@@ -368,7 +392,7 @@ export default function Annotate({ }) {
         return <TextFrame tokenIndex={srctokenIndex} setTokenIndex={setSRCTokenIndex} tokensList={srcTokensList} mentions={srcMentions} setMentions={setSrcMentions} saveMentions={saveMentions} mentionsList={srcMentionsList} setMentionsList={setSrcMentionsList} annotatorType={"Source"}
           AnnotateDirect={srcAnnotateDirect}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={srcAnnotateDirect}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={srcAnnotateDirect} uploadClip={uploadClip}></AudioFrame>
       case "Image":
         return <Container><InputLabel>Image Annotator Coming Soon...</InputLabel></Container>;
       case "Custom":
@@ -383,7 +407,7 @@ export default function Annotate({ }) {
       case "Text":
         return <TextFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} tokensList={tgtTokensList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} AnnotateDirect={tgtAnnotateDirect}></TextFrame>
       case "Audio":
-        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={tgtAnnotateDirect}></AudioFrame>
+        return <AudioFrame tokenIndex={tgttokenIndex} setTokenIndex={setTGTTokenIndex} audioList={mediaList} mentions={tgtMentions} setMentions={setTgtMentions} saveMentions={saveMentions} mentionsList={tgtMentionsList} setMentionsList={setTgtMentionsList} annotatorType={"Target"} getDataSlice={getDataSlice} objURL={objURL} AnnotateDirect={tgtAnnotateDirect} uploadClip={uploadClip}></AudioFrame>
       case "Image":
         return <Container><InputLabel>Image Annotator Coming Soon...</InputLabel></Container>;
       case "Custom":
@@ -478,14 +502,15 @@ export default function Annotate({ }) {
                 </Select>
               );
             }
-      case "Relation":
-        return (
-          <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleRelSelection}>
-            {relationClasses.map((item) =>
-              <MenuItem key={item} value={item}>{item}</MenuItem>
-            )}
-          </Select>
-        );
+          case "Relation":
+            return (
+              <Select value={"Empty"} style={{ minWidth: "250px" }} onChange={handleRelSelection}>
+                {relationClasses.map((item) =>
+                  <MenuItem key={item} value={item}>{item}</MenuItem>
+                )}
+              </Select>
+            );
+        }
     }
   }
 

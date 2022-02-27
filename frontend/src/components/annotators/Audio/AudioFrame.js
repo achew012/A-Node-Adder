@@ -8,7 +8,7 @@ import AudioCustom from './AudioCustom';
 
 // mentions only manages current highlighted selections 
 // mentionsList caches selections every index change
-export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, getDataSlice, objURL, AnnotateDirect }) {
+export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, mentions, setMentions, saveMentions, mentionsList, setMentionsList, annotatorType, getDataSlice, objURL, AnnotateDirect, uploadClip }) {
 
   const useStyles = makeStyles({
     main: {
@@ -56,7 +56,7 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
   }, [audioList, tokenIndex, selectedRange]);
 
   useEffect(() => {
-    // console.log(mentionsList, objURL)
+    console.log(mentionsList)
   }, [mentionsList, objURL]);
 
   function handleNextIndex(e) {
@@ -85,11 +85,12 @@ export default function AudioFrame({ tokenIndex, setTokenIndex, audioList, menti
 
   function renderMediaPlayer() {
     if (AnnotateDirect == true) {
-      return (
-        <Container>
-          {/* Audio Recorder Coming Soon... */}
-          <AudioCustom></AudioCustom>
-        </Container>);
+      if (uploadClip != null) {
+        return (
+          <Container>
+            <AudioCustom fileName={"custom"} annotatorType={annotatorType} uploadClip={uploadClip} mentions={mentions} setMentions={setMentions} mentionsList={mentionsList} setMentionsList={setMentionsList}></AudioCustom>
+          </Container>);
+      }
     } else {
       return (
         <AudioBase objURL={objURL} filename={audioList[tokenIndex]} selectedRange={selectedRange} setSelectedRange={setSelectedRange} mentions={loadMentions()} setMentions={setMentions} tokenIndex={tokenIndex}></AudioBase >
